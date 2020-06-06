@@ -24,7 +24,6 @@ SUBSYSTEM_DEF(chat)
 
 	if(!istext(message))
 		CRASH("to_chat called with invalid input type")
-		return
 
 	if(target == world)
 		target = clients
@@ -35,10 +34,25 @@ SUBSYSTEM_DEF(chat)
 	message = replacetext(message, "\proper", "")
 	if(handle_whitespace)
 		message = replacetext(message, "\n", "<br>")
-		message = replacetext(message, "\t", "[FOURSPACES][FOURSPACES]")
+		message = replacetext(message, "\t", "[GLOB.TAB][GLOB.TAB]")
 	if (trailing_newline)
 		message += "<br>"
 
+	//Replace expanded \icon macro with icon2html
+	//regex/Replace with a proc won't work here because icon2html takes target as an argument and there is no way to pass it to the replacement proc
+	//not even hacks with reassigning usr work
+	var/regex/i = new(@/<IMG CLASS=icon SRC=(\[[^]]+])(?: ICONSTATE='([^']+)')?>/, "g")
+	while(i.Find(message))
+		message = copytext(message,1,i.index)+icon2html(locate(i.group[1]), target, icon_state=i.group[2])+copytext(message,i.next)
+
+	message = \
+		symbols_to_unicode(
+			strip_improper(
+				color_macro_to_html(
+					message
+				)
+			)
+		)
 
 	//url_encode it TWICE, this way any UTF-8 characters are able to be decoded by the Javascript.
 	//Do the double-encoding here to save nanoseconds
