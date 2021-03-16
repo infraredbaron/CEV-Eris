@@ -8,6 +8,7 @@
 	opacity = FALSE
 	anchored = TRUE
 	icon = 'icons/obj/stairs.dmi'
+	bad_type = /obj/structure/multiz
 	var/istop = TRUE
 	var/obj/structure/multiz/target
 	var/obj/structure/multiz/targeted_by
@@ -108,6 +109,34 @@
 /obj/structure/multiz/ladder/attack_generic(var/mob/M)
 	attack_hand(M)
 
+/obj/structure/multiz/ladder/proc/throw_through(var/obj/item/C, var/mob/throw_man)
+	if(istype(throw_man,/mob/living/carbon/human))
+		var/mob/living/carbon/human/user = throw_man
+		var/through =  istop ? "down" : "up"
+		user.visible_message(SPAN_WARNING("[user] takes position to throw [C] [through] \the [src]."),
+		SPAN_WARNING("You take position to throw [C] [through] \the [src]."))
+		if(do_after(user, 10))
+			user.visible_message(SPAN_WARNING("[user] throws [C] [through] \the [src]!"),
+			SPAN_WARNING("You throw [C] [through] \the [src]."))
+			user.drop_item()
+			C.forceMove(target.loc)
+			var/direction = pick(NORTH, SOUTH, EAST, WEST, NORTHEAST, NORTHWEST, SOUTHEAST, SOUTHWEST)
+			C.Move(get_step(C, direction))
+			if(istype(C, /obj/item/weapon/grenade))
+				var/obj/item/weapon/grenade/G = C
+				if(!G.active)
+					G.activate(user)
+			return TRUE
+		return FALSE
+	return FALSE
+
+/obj/structure/multiz/ladder/attackby(obj/item/I, mob/user)
+	. = ..()
+	if(throw_through(I,user))
+		return
+	else
+		attack_hand(user)
+
 /obj/structure/multiz/ladder/attack_hand(var/mob/M)
 	if (isrobot(M) && !isdrone(M))
 		var/mob/living/silicon/robot/R = M
@@ -117,18 +146,20 @@
 		climb(M, climb_delay)
 
 
-/obj/structure/multiz/ladder/proc/climb(var/mob/M, var/delay)
+/obj/structure/multiz/ladder/proc/climb(mob/M, delay)
 	if(!target || !istype(target.loc, /turf))
 		to_chat(M, SPAN_NOTICE("\The [src] is incomplete and can't be climbed."))
 		return
-
+	if(isliving(M))
+		var/mob/living/L = M
+		delay *= L.mod_climb_delay
 	var/turf/T = target.loc
 	var/mob/tempMob
 	for(var/atom/A in T)
 		if(!A.CanPass(M))
 			to_chat(M, SPAN_NOTICE("\A [A] is blocking \the [src]."))
 			return
-		else if (A.density && istype(A, /mob))
+		else if (A.density && ismob(A))
 			tempMob = A
 			continue
 
@@ -162,13 +193,39 @@
 		)
 		playsound(src, pick(climb_sound), 100, 1, 5,5)
 
-		delay = max(delay * M.stats.getMult(STAT_VIG, STAT_LEVEL_EXPERT), delay * 0.66) 
+		delay = max(delay * M.stats.getMult(STAT_VIG, STAT_LEVEL_EXPERT), delay * 0.66)
 
 
 	if(do_after(M, delay, src))
 		M.forceMove(T)
 		try_resolve_mob_pulling(M, src)
 
+/obj/structure/multiz/ladder/AltClick(var/mob/living/carbon/human/user)
+	if(get_dist(src, user) <= 3)
+		if(!user.is_physically_disabled())
+			if(target)
+				if(user.client)
+					if(user.is_watching == TRUE)
+						to_chat(user, SPAN_NOTICE("You look [istop ? "down" : "up"] \the [src]."))
+						user.client.eye = user.client.mob
+						user.client.perspective = MOB_PERSPECTIVE
+						user.hud_used.updatePlaneMasters(user)
+						user.is_watching = FALSE
+					else if(user.is_watching == FALSE)
+						user.client.eye = target
+						user.client.perspective = EYE_PERSPECTIVE
+						user.hud_used.updatePlaneMasters(user)
+						user.is_watching = TRUE
+				return
+		else
+			to_chat(user, SPAN_NOTICE("You can't do it right now."))
+		return
+	else 
+		user.client.eye = user.client.mob
+		user.client.perspective = MOB_PERSPECTIVE
+		user.hud_used.updatePlaneMasters(user)
+		user.is_watching = FALSE
+		return
 ////STAIRS////
 
 /obj/structure/multiz/stairs
@@ -236,7 +293,63 @@
 	. = ..()
 	Bumped(user)
 
+/obj/structure/multiz/stairs/AltClick(var/mob/living/carbon/human/user)
+	if(get_dist(src, user) <= 7)
+		if(!user.is_physically_disabled())
+			if(target)
+				if(user.client)
+					if(user.is_watching == TRUE)
+						to_chat(user, SPAN_NOTICE("You look [istop ? "down" : "up"] \the [src]."))
+						user.client.eye = user.client.mob
+						user.client.perspective = MOB_PERSPECTIVE
+						user.hud_used.updatePlaneMasters(user)
+						user.is_watching = FALSE
+					else if(user.is_watching == FALSE)
+						user.client.eye = target
+						user.client.perspective = EYE_PERSPECTIVE
+						user.hud_used.updatePlaneMasters(user)
+						user.is_watching = TRUE
+				return
+		else
+			to_chat(user, SPAN_NOTICE("You can't do it right now."))
+		return
+	else 
+		user.client.eye = user.client.mob
+		user.client.perspective = MOB_PERSPECTIVE
+		user.hud_used.updatePlaneMasters(user)
+		user.is_watching = FALSE
+		return
+
 /obj/structure/multiz/stairs/active/bottom
 	icon_state = "rampup"
 	istop = FALSE
 
+
+
+
+/obj/structure/multiz/ladder/burrow_hole
+	name = "ancient maintenance tunnel"
+	desc = "A deep metal tunnel. You wonder where it leads."
+	icon = 'icons/obj/burrows.dmi'
+	icon_state = "maint_hole"
+
+
+/obj/structure/multiz/ladder/up/deepmaint
+	name = "maintenance ladder"
+
+/obj/structure/multiz/ladder/up/deepmaint/climb()
+	if(!target)
+		var/obj/structure/burrow/my_burrow = pick(all_burrows)
+		var/obj/structure/multiz/ladder/burrow_hole/my_hole = new /obj/structure/multiz/ladder/burrow_hole(my_burrow.loc)
+		my_burrow.deepmaint_entry_point = FALSE
+		target = my_hole
+		my_hole.target = src
+		var/list/seen = viewers(7, my_burrow.loc)
+		my_burrow.audio("crumble", 80)
+		for(var/mob/M in seen)
+			M.show_message(SPAN_NOTICE("The burrow collapses inwards!"), 1)
+
+		free_deepmaint_ladders -= src
+		my_burrow.collapse()
+
+	..()

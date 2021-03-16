@@ -4,7 +4,7 @@ GLOBAL_LIST_EMPTY(active_mind_fryers)
 	name = "mind fryer"
 	desc = "A device that attacks the minds of people nearby, causing sanity loss and inducing mental breakdowns."
 	icon_state = "mind_fryer"
-	origin_tech = list(TECH_BIO = 5, TECH_COMBAT = 3, TECH_ILLEGAL = 3)
+	origin_tech = list(TECH_BIO = 5, TECH_COMBAT = 3, TECH_COVERT = 3)
 	matter = list(MATERIAL_STEEL = 6, MATERIAL_URANIUM = 4)
 	var/datum/antag_contract/derail/contract
 	var/datum/mind/owner
@@ -36,7 +36,7 @@ GLOBAL_LIST_EMPTY(active_mind_fryers)
 
 /obj/item/device/mind_fryer/Process()
 	for(var/mob/living/carbon/human/H in view(src))
-		if(H.get_species() != "Human" || (H in victims) || (owner && H.mind == owner))
+		if(H.get_species() != SPECIES_HUMAN || (H in victims) || (owner && H.mind == owner))
 			continue
 		icon_state = "mind_fryer_running"
 		H.sanity.onPsyDamage(2)
@@ -54,7 +54,7 @@ GLOBAL_LIST_EMPTY(active_mind_fryers)
 		break
 
 /obj/item/device/mind_fryer/proc/reg_break(mob/living/carbon/human/victim)
-	if(victim.get_species() != "Human")
+	if(victim.get_species() != SPECIES_HUMAN)
 		return
 
 	if(owner && owner.current)

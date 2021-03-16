@@ -11,8 +11,8 @@
 	var/last_flash = 0 //Don't want it getting spammed like regular flashes
 	var/strength = 10 //How weakened targets are when flashed.
 	var/base_state = "mflash"
-	anchored = 1
-	use_power = 1
+	anchored = TRUE
+	use_power = IDLE_POWER_USE
 	idle_power_usage = 2
 	flags = PROXMOVE
 	var/_wifi_id
@@ -23,9 +23,9 @@
 	desc = "A portable flashing device. Wrench to activate and deactivate. Cannot detect slow movements."
 	icon_state = "pflash1"
 	strength = 8
-	anchored = 0
+	anchored = FALSE
 	base_state = "pflash"
-	density = 1
+	density = TRUE
 	range = 3 //the eris' hallways are wider than other maps
 
 /obj/machinery/flasher/Initialize()
@@ -86,7 +86,7 @@
 			if(!H.eyecheck() <= 0)
 				continue
 			flash_time *= H.species.flash_mod
-			var/obj/item/organ/internal/eyes/E = H.internal_organs_by_name[BP_EYES]
+			var/obj/item/organ/internal/eyes/E = H.random_organ_by_process(OP_EYES)
 			if(!E)
 				return
 			if(E.is_bruised() && prob(E.damage + 50))

@@ -58,7 +58,10 @@
 
 	var/reinforcements = 2 //Maximum number of times this burrow may recieve reinforcements
 
-/obj/structure/burrow/New(var/loc, var/turf/anchor)
+	var/deepmaint_entry_point = FALSE //Will this burrow turn into a deep maint entry point upon getting collapsed?
+
+
+/obj/structure/burrow/New(var/loc, turf/anchor)
 	.=..()
 	all_burrows.Add(src)
 	var/obj/machinery/power/nt_obelisk/obelisk = locate(/obj/machinery/power/nt_obelisk) in range(7, src)
@@ -86,6 +89,10 @@
 	if (A && A.is_maintenance)
 		maintenance = TRUE
 		break_open(TRUE)
+
+	if(prob(7))
+		deepmaint_entry_point = TRUE
+
 
 //Lets remove ourselves from the global list and cleanup any held references
 /obj/structure/burrow/Destroy()
@@ -139,6 +146,10 @@
 	//Creatures only. No humans or robots
 	if (!isanimal(L) && !issuperioranimal(L))
 		return FALSE
+	
+	//Kaisers are too fat, they can't fit in
+	if(istype(L, /mob/living/carbon/superior_animal/roach/kaiser))
+		return FALSE
 
 	return TRUE
 
@@ -162,7 +173,7 @@ percentage is a value in the range 0..1 that determines what portion of this mob
 	Passing a percentage of zero is a special case, this burrow will not suck up any mobs.
 	The mobs it is to send should be placed inside it by the caller
 */
-/obj/structure/burrow/proc/migrate_to(var/obj/structure/burrow/_target, var/time = 1, var/percentage = 1)
+/obj/structure/burrow/proc/migrate_to(obj/structure/burrow/_target, time = 1, percentage = 1)
 	if (!_target)
 		return
 
@@ -199,7 +210,7 @@ percentage is a value in the range 0..1 that determines what portion of this mob
 
 
 //Summons some or all of the nearby population to this hole, where they will enter it and travel
-/obj/structure/burrow/proc/summon_mobs(var/percentage = 1)
+/obj/structure/burrow/proc/summon_mobs(percentage = 1)
 	var/list/candidates = population.Copy() //Make a copy of the population list so we can modify it
 	var/step = 1 / candidates.len //What percentage of the population is each mob worth?
 	sending_mobs = list()
@@ -231,7 +242,7 @@ percentage is a value in the range 0..1 that determines what portion of this mob
 
 
 //Tells this burrow that it's soon to recieve new arrivals
-/obj/structure/burrow/proc/prepare_reception(var/start_time, var/_duration, var/sender)
+/obj/structure/burrow/proc/prepare_reception(start_time, _duration, sender)
 	migration_initiated = start_time
 	duration = _duration
 	recieving = sender
@@ -388,7 +399,7 @@ percentage is a value in the range 0..1 that determines what portion of this mob
 
 
 //Called when an area becomes uninhabitable
-/obj/structure/burrow/proc/evacuate(var/force_nonmaint = TRUE)
+/obj/structure/burrow/proc/evacuate(force_nonmaint = TRUE)
 	//We're already busy sending or recieving a migration, can't start another or closed
 	if (target || recieving || isSealed)
 		return
@@ -409,7 +420,7 @@ percentage is a value in the range 0..1 that determines what portion of this mob
 		migrate_to(btarget, 10 SECONDS, 1)
 
 
-/obj/structure/burrow/proc/distress(var/immediate = FALSE)
+/obj/structure/burrow/proc/distress(immediate = FALSE)
 	//This burrow requests reinforcements from elsewhere
 	if (reinforcements <= 0)
 		return
@@ -429,7 +440,7 @@ percentage is a value in the range 0..1 that determines what portion of this mob
 
 
 //Called when things enter or leave this burrow
-/obj/structure/burrow/proc/break_open(var/silent = FALSE)
+/obj/structure/burrow/proc/break_open(silent = FALSE)
 	if(isSealed)
 		reveal()
 		isSealed = FALSE
@@ -512,7 +523,7 @@ percentage is a value in the range 0..1 that determines what portion of this mob
 
 			if (I.use_tool(user, src, target_time, QUALITY_DIGGING, health * 0.66, list(STAT_MEC, STAT_ROB), forced_sound = WORKSOUND_PICKAXE))
 				//On success, the hole is destroyed!
-				new /obj/random/scrap/sparse_weighted(get_turf(user))
+				new /obj/spawner/scrap/sparse(get_turf(user))
 				user.visible_message("[user] collapses [src] with the [I] and dumps trash which was in the way.", "You collapse [src] with the [I] and dump trash which was in the way.")
 
 				collapse()
@@ -547,6 +558,16 @@ percentage is a value in the range 0..1 that determines what portion of this mob
 /obj/structure/burrow/proc/collapse(var/clean = FALSE)
 	if(!clean)
 		spawn_rubble(loc, 0, 100)
+	if(deepmaint_entry_point)
+		if(free_deepmaint_ladders.len > 0)
+			var/obj/structure/multiz/ladder/up/my_ladder = pick(free_deepmaint_ladders)
+			free_deepmaint_ladders -= my_ladder
+			var/obj/structure/multiz/ladder/burrow_hole/my_hole = new /obj/structure/multiz/ladder/burrow_hole(loc)
+			my_hole.target = my_ladder
+			my_ladder.targeted_by = my_hole
+			my_ladder.target = my_hole
+			qdel(src)
+			return
 	isSealed = TRUE
 	icon_state = initial(icon_state)
 	name = initial(name)

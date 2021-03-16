@@ -1,7 +1,8 @@
-var/datum/maps_data/maps_data = new
+GLOBAL_DATUM_INIT(maps_data, /datum/maps_data, new)
+
 
 /proc/isStationLevel(level)
-	return level in maps_data.station_levels
+	return level in GLOB.maps_data.station_levels
 
 /proc/isNotStationLevel(level)
 	return !isStationLevel(level)
@@ -11,21 +12,21 @@ var/datum/maps_data/maps_data = new
 	return T && isStationLevel(T.z)
 
 /proc/isPlayerLevel(level)
-	return level in maps_data.player_levels
+	return level in GLOB.maps_data.player_levels
 
 /proc/isOnPlayerLevel(atom/A)
 	var/turf/T = get_turf(A)
 	return T && isPlayerLevel(T.z)
 
 /proc/isContactLevel(level)
-	return level in maps_data.player_levels
+	return level in GLOB.maps_data.player_levels
 
 /proc/isOnContactLevel(atom/A)
 	var/turf/T = get_turf(A)
 	return T && isContactLevel(T.z)
 
 /proc/isAdminLevel(level)
-	return level in maps_data.admin_levels
+	return level in GLOB.maps_data.admin_levels
 
 /proc/isNotAdminLevel(level)
 	return !isAdminLevel(level)
@@ -35,10 +36,10 @@ var/datum/maps_data/maps_data = new
 	return T && isAdminLevel(T.z)
 
 /proc/get_level_name(level)
-	return (maps_data.names.len >= level && maps_data.names[level]) || level
+	return (GLOB.maps_data.names.len >= level && GLOB.maps_data.names[level]) || level
 
 /proc/max_default_z_level()
-	return maps_data.all_levels.len
+	return GLOB.maps_data.all_levels.len
 
 /proc/is_on_same_plane_or_station(z1, z2)
 	if(z1 == z2)
@@ -69,9 +70,9 @@ ADMIN_VERB_ADD(/client/proc/test_MD, R_DEBUG, null)
 	to_chat(mob, "isNotAdminLevel: [isNotAdminLevel(mob.z)]")
 	to_chat(mob, "isOnAdminLevel: [isOnAdminLevel(mob)]")
 
-	to_chat(mob, "isAcessableLevel: [maps_data.accessable_levels[num2text(mob.z)]]")
+	to_chat(mob, "isAcessableLevel: [GLOB.maps_data.accessable_levels[num2text(mob.z)]]")
 
-	if(maps_data.asteroid_leves[num2text(T.z)])
+	if(GLOB.maps_data.asteroid_levels[num2text(T.z)])
 		to_chat(mob, "Asteroid will be generated here")
 	else
 		to_chat(mob, "This isn't asteroid level")
@@ -83,7 +84,7 @@ ADMIN_VERB_ADD(/client/proc/test_MD, R_DEBUG, null)
 	var/list/player_levels     = new // Z-levels a character can typically reach
 	var/list/contact_levels    = new // Z-levels that can be contacted from the station, for eg announcements
 	var/list/sealed_levels	   = new // Z-levels that don't allow random transit at edge
-	var/list/asteroid_leves    = new
+	var/list/asteroid_levels   = new
 	var/list/accessable_levels = new
 	var/list/empty_levels = null     // Empty Z-levels that may be used for various things
 	var/list/names = new
@@ -98,7 +99,7 @@ ADMIN_VERB_ADD(/client/proc/test_MD, R_DEBUG, null)
 						/datum/job/doctor, /datum/job/chemist, /datum/job/paramedic, /datum/job/psychiatrist,
 						/datum/job/technomancer,
 						/datum/job/cargo_tech, /datum/job/mining, /datum/job/merchant,
-						/datum/job/clubworker, /datum/job/clubmanager, /datum/job/actor,
+						/datum/job/clubworker, /datum/job/clubmanager, /datum/job/artist,
 						/datum/job/chaplain, /datum/job/acolyte, /datum/job/janitor, /datum/job/hydro,
 						/datum/job/scientist, /datum/job/roboticist,
 						/datum/job/ai, /datum/job/cyborg,
@@ -124,14 +125,22 @@ ADMIN_VERB_ADD(/client/proc/test_MD, R_DEBUG, null)
 	var/path = "eris"
 
 	var/access_modify_region = list(
-		ACCESS_REGION_SECURITY = list(access_hos, access_change_ids),
-		ACCESS_REGION_MEDBAY = list(access_cmo, access_change_ids),
-		ACCESS_REGION_RESEARCH = list(access_rd, access_change_ids),
-		ACCESS_REGION_ENGINEERING = list(access_ce, access_change_ids),
+		ACCESS_REGION_SECURITY = list(access_hos, access_change_ids, access_change_sec),
+		ACCESS_REGION_MEDBAY = list(access_cmo, access_change_ids, access_change_medbay),
+		ACCESS_REGION_RESEARCH = list(access_rd, access_change_ids, access_change_research),
+		ACCESS_REGION_ENGINEERING = list(access_ce, access_change_ids, access_change_engineering),
 		ACCESS_REGION_COMMAND = list(access_change_ids),
-		ACCESS_REGION_GENERAL = list(access_change_ids),
-		ACCESS_REGION_SUPPLY = list(access_change_ids),
-		ACCESS_REGION_CHURCH = list(access_nt_preacher, access_change_ids)
+		ACCESS_REGION_GENERAL = list(access_change_ids,
+										access_change_cargo,
+										access_change_club,
+										access_change_engineering,
+										access_change_medbay,
+										access_change_nt,
+										access_change_research,
+										access_change_sec),
+		ACCESS_REGION_SUPPLY = list(access_change_ids, access_change_cargo),
+		ACCESS_REGION_CHURCH = list(access_nt_preacher, access_change_ids, access_change_nt),
+		ACCESS_REGION_CLUB = list(access_change_ids, access_change_club)
 	)
 
 	//HOLOMAP
@@ -184,7 +193,7 @@ ADMIN_VERB_ADD(/client/proc/test_MD, R_DEBUG, null)
 		contact_levels += level
 
 	if(MD.generate_asteroid)
-		asteroid_leves += level
+		asteroid_levels += level
 
 	if(MD.is_accessable_level)
 		accessable_levels[num2text(level)] = MD.is_accessable_level
@@ -196,17 +205,34 @@ ADMIN_VERB_ADD(/client/proc/test_MD, R_DEBUG, null)
 		holomap_smoosh = MD.holomap_smoosh
 
 	if(MD.is_station_level)
+		var/max_holo_per_colum_l = MD.height/2 + 0.5
+		var/max_holo_per_colum_r = MD.height/2 - 0.5
+		var/even_mult = (0.15*level-0.3)*level+0.4
+		var/odd_mult = (level-1)/2
+		if(ISEVEN(MD.height))
+			max_holo_per_colum_l -= 0.5
+			max_holo_per_colum_r = max_holo_per_colum_l
+			even_mult = (level-1)/2 - 0.5
+			odd_mult = level/2 - 0.5
+		MD.holomap_legend_x = HOLOMAP_ICON_SIZE - world.maxx - MD.legend_size
+		MD.holomap_legend_y = HOLOMAP_ICON_SIZE - world.maxy - MD.legend_size - ERIS_HOLOMAP_CENTER_GUTTER
 		if(ISODD(level))
-			MD.holomap_offset_x = MD.holomap_legend_x - ERIS_HOLOMAP_CENTER_GUTTER - ERIS_MAP_SIZE
-			MD.holomap_offset_y = ERIS_HOLOMAP_MARGIN_Y + ERIS_MAP_SIZE*((level-1)/2)
+			MD.holomap_offset_x = HOLOMAP_ICON_SIZE - world.maxx - ERIS_HOLOMAP_CENTER_GUTTER - MD.size - MD.legend_size
+			if(!odd_mult)
+				MD.holomap_offset_y = 0
+			else
+				MD.holomap_offset_y = ERIS_HOLOMAP_MARGIN_Y(MD.size, max_holo_per_colum_l, 0) + MD.size*odd_mult
 		else
-			MD.holomap_offset_x = MD.holomap_legend_x + ERIS_HOLOMAP_CENTER_GUTTER
-			MD.holomap_offset_y = ERIS_HOLOMAP_MARGIN_Y + ERIS_MAP_SIZE*(level/2 - 0.5)
+			MD.holomap_offset_x = HOLOMAP_ICON_SIZE - world.maxx
+			if(!even_mult && max_holo_per_colum_l == max_holo_per_colum_r)
+				MD.holomap_offset_y = 0
+			else
+				MD.holomap_offset_y = ERIS_HOLOMAP_MARGIN_Y(MD.size, max_holo_per_colum_r, 0) + MD.size*even_mult
 
 	// Auto-center the map if needed (Guess based on maxx/maxy)
 	if (MD.holomap_offset_x < 0)
 		MD.holomap_offset_x = ((HOLOMAP_ICON_SIZE - world.maxx) / 2)
-	if (MD.holomap_offset_x < 0)
+	if (MD.holomap_offset_y < 0)
 		MD.holomap_offset_y = ((HOLOMAP_ICON_SIZE - world.maxy) / 2)
 	// Assign them to the map lists
 
@@ -217,7 +243,7 @@ ADMIN_VERB_ADD(/client/proc/test_MD, R_DEBUG, null)
 
 /datum/maps_data/proc/get_empty_zlevel()
 	if(empty_levels == null)
-		world.maxz++
+		world.incrementMaxZ()
 		empty_levels = list(world.maxz)
 
 		add_z_level(world.maxz, world.maxz, 1)
@@ -260,6 +286,7 @@ ADMIN_VERB_ADD(/client/proc/test_MD, R_DEBUG, null)
 	var/is_accessable_level = TRUE // Prob modifier for random access (space travelling)
 	var/generate_asteroid= FALSE
 	var/is_sealed = FALSE //No transit at map edge
+	var/custom_z_names = FALSE //Whether a custom name or a simple number would be displayed at GPS beacons
 	var/tmp/z_level
 	var/height = -1	///< The number of Z-Levels in the map.
 
@@ -268,10 +295,12 @@ ADMIN_VERB_ADD(/client/proc/test_MD, R_DEBUG, null)
 	var/holomap_offset_y = -1	// Number of pixels to offset the map up (for centering) for this z
 	var/holomap_legend_x = 96	// x position of the holomap legend for this z
 	var/holomap_legend_y = 96	// y position of the holomap legend for this z
+	var/size = ERIS_MAP_SIZE
+	var/legend_size = 32
 	var/list/holomap_smoosh
 
 // If the height is more than 1, we mark all contained levels as connected.
-/obj/map_data/New(var/atom/nloc)
+/obj/map_data/New(atom/nloc)
 	..()
 	z_level = nloc.z
 
@@ -285,9 +314,12 @@ ADMIN_VERB_ADD(/client/proc/test_MD, R_DEBUG, null)
 		var/z_level_r = original_level + shift - 1
 		z_level = z_level_r
 		name = "[original_name] stage [shift]"
-		maps_data.registrate(src)
+		GLOB.maps_data.registrate(src)
 
 		add_z_level(z_level_r, original_level, height)
+
+/obj/map_data/proc/custom_z_name(z_level)
+	return z_level
 
 /obj/map_data/eris
 	name = "Eris"
@@ -295,12 +327,16 @@ ADMIN_VERB_ADD(/client/proc/test_MD, R_DEBUG, null)
 	is_player_level = TRUE
 	is_contact_level = TRUE
 	is_accessable_level = TRUE
+	custom_z_names = TRUE
 	height = 5
 	holomap_offset_x = -1	// Number of pixels to offset the map right (for centering) for this z
 	holomap_offset_y = -1	// Number of pixels to offset the map up (for centering) for this z
 	holomap_legend_x = 200	// x position of the holomap legend for this z
 	holomap_legend_y = 200	// y position of the holomap legend for this z
 	holomap_smoosh = list(list(1,2,3,4,5))
+
+/obj/map_data/eris/custom_z_name(z_level)
+	return "Deck [height - z_level + 1]"
 
 /obj/map_data/admin
 	name = "Admin Level"
@@ -314,5 +350,8 @@ ADMIN_VERB_ADD(/client/proc/test_MD, R_DEBUG, null)
 	is_contact_level = TRUE
 	generate_asteroid = TRUE
 	is_accessable_level = TRUE
+	custom_z_names = TRUE
 	height = 1
 
+/obj/map_data/asteroid/custom_z_name(z_level)
+	return "Asteroid [z_level]"

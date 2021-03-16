@@ -8,10 +8,10 @@
 	name = "Body Scanner"
 	icon = 'icons/obj/Cryogenic2.dmi'
 	icon_state = "scanner_off"
-	density = 1
-	anchored = 1
+	density = TRUE
+	anchored = TRUE
 
-	use_power = 1
+	use_power = IDLE_POWER_USE
 	idle_power_usage = 60
 	active_power_usage = 10000	//10 kW. It's a big all-body scanner.
 
@@ -60,6 +60,10 @@
 	update_use_power(1)
 	update_icon()
 
+/obj/machinery/bodyscanner/AltClick(mob/user)
+	if(Adjacent(user))
+		eject()
+
 /obj/machinery/bodyscanner/proc/set_occupant(var/mob/living/L)
 	L.forceMove(src)
 	src.occupant = L
@@ -106,18 +110,18 @@
 
 /obj/machinery/bodyscanner/ex_act(severity)
 	switch(severity)
-		if(1.0)
+		if(1)
 			for(var/atom/movable/A in src)
 				A.forceMove(loc)
 				A.ex_act(severity)
 			qdel(src)
-		if(2.0)
+		if(2)
 			if (prob(50))
 				for(var/atom/movable/A in src)
 					A.forceMove(loc)
 					A.ex_act(severity)
 				qdel(src)
-		if(3.0)
+		if(3)
 			if (prob(25))
 				for(var/atom/movable/A in src)
 					A.forceMove(loc)
@@ -126,10 +130,10 @@
 
 /obj/machinery/body_scanconsole/ex_act(severity)
 	switch(severity)
-		if(1.0)
+		if(1)
 			qdel(src)
 			return
-		if(2.0)
+		if(2)
 			if (prob(50))
 				qdel(src)
 				return
@@ -152,8 +156,8 @@
 	name = "Body Scanner Console"
 	icon = 'icons/obj/Cryogenic2.dmi'
 	icon_state = "scanner_terminal_off"
-	density = 1
-	anchored = 1
+	density = TRUE
+	anchored = TRUE
 
 
 /obj/machinery/body_scanconsole/New()
@@ -209,7 +213,7 @@
 			to_chat(usr, "\icon[src]<span class='warning'>The body scanner cannot scan that lifeform.</span>")
 			return
 		var/obj/item/weapon/paper/R = new(src.loc)
-		R.name = "Body scan report"
+		R.name = "[occupant.get_visible_name()] scan report"
 		R.info = format_occupant_data(src.connected.get_occupant_data())
 		R.update_icon()
 
@@ -219,6 +223,7 @@
 		return
 	var/mob/living/carbon/human/H = occupant
 	var/list/occupant_data = list(
+		"name" = H.get_visible_name(),
 		"stationtime" = stationtime2text(),
 		"stat" = H.stat,
 		"health" = round(H.health/H.maxHealth)*100,
@@ -243,7 +248,9 @@
 		"lung_ruptured" = H.is_lung_ruptured(),
 		"external_organs" = H.organs.Copy(),
 		"internal_organs" = H.internal_organs.Copy(),
-		"species_organs" = H.species.has_organ //Just pass a reference for this, it shouldn't ever be modified outside of the datum.
+		"species_organs" = H.species.has_process, //Just pass a reference for this, it shouldn't ever be modified outside of the datum.
+		"NSA" = max(0, H.metabolism_effects.get_nsa()),
+		"NSA_threshold" = H.metabolism_effects.nsa_threshold
 		)
 	return occupant_data
 
@@ -251,6 +258,7 @@
 /obj/machinery/body_scanconsole/proc/format_occupant_data(var/list/occ)
 	var/dat = "<font color='blue'><b>Scan performed at [occ["stationtime"]]</b></font><br>"
 	dat += "<font color='blue'><b>Occupant Statistics:</b></font><br>"
+	dat += text("ID Name: <i>[]</i><br>", occ["name"])
 	var/aux
 	switch (occ["stat"])
 		if(0)
@@ -263,13 +271,14 @@
 	if (occ["virus_present"])
 		dat += "<font color='red'>Viral pathogen detected in blood stream.</font><br>"
 	dat += text("[]\t-Brute Damage %: []</font><br>", ("<font color='[occ["bruteloss"] < 60  ? "blue" : "red"]'>"), occ["bruteloss"])
-	dat += text("[]\t-Respiratory Damage %: []</font><br>", ("<font color='[occ["oxyloss"] < 60  ? "blue'" : "red"]'>"), occ["oxyloss"])
+	dat += text("[]\t-Respiratory Damage %: []</font><br>", ("<font color='[occ["oxyloss"] < 60  ? "blue" : "red"]'>"), occ["oxyloss"])
 	dat += text("[]\t-Toxin Content %: []</font><br>", ("<font color='[occ["toxloss"] < 60  ? "blue" : "red"]'>"), occ["toxloss"])
 	dat += text("[]\t-Burn Severity %: []</font><br><br>", ("<font color='[occ["fireloss"] < 60  ? "blue" : "red"]'>"), occ["fireloss"])
 
 	dat += text("[]\tRadiation Level %: []</font><br>", ("<font color='[occ["rads"] < 10  ? "blue" : "red"]'>"), occ["rads"])
 	dat += text("[]\tGenetic Tissue Damage %: []</font><br>", ("<font color='[occ["cloneloss"] < 1  ? "blue" : "red"]'>"), occ["cloneloss"])
 	dat += text("[]\tApprox. Brain Damage %: []</font><br>", ("<font color='[occ["brainloss"] < 1  ? "blue" : "red"]'>"), occ["brainloss"])
+	dat += text("[]\tNeural System Accumulation: []/[]</font><br>", ("<font color='[occ["NSA"] < occ["NSA_threshold"]  ? "blue" : "red"]'>"), occ["NSA"], occ["NSA_threshold"])
 	dat += text("Paralysis Summary %: [] ([] seconds left!)<br>", occ["paralysis"], round(occ["paralysis"] / 4))
 	dat += text("Body Temperature: [occ["bodytemp"]-T0C]&deg;C ([occ["bodytemp"]*1.8-459.67]&deg;F)<br><HR>")
 
@@ -314,8 +323,6 @@
 			splint = "Splinted:"
 		if(e.status & ORGAN_BLEEDING)
 			bled = "Bleeding:"
-		if(e.status & ORGAN_BROKEN)
-			AN = "[e.broken_description]:"
 		if(BP_IS_ASSISTED(e))
 			robot = "Assisted:"
 		if(BP_IS_ROBOTIC(e))
@@ -359,13 +366,21 @@
 			dat += "<td>[e.name]</td><td>-</td><td>-</td><td>Not Found</td>"
 		dat += "</tr>"
 
-	for(var/obj/item/organ/I in occ["internal_organs"])
+	for(var/obj/item/organ/internal/I in occ["internal_organs"])
+		if(I.scanner_hidden)
+			continue
 
 		var/mech = ""
+		var/bone_fracture = ""
 		if(BP_IS_ASSISTED(I))
 			mech = "Assisted:"
 		if(BP_IS_ROBOTIC(I))
 			mech = "Prosthetic:"
+
+		var/obj/item/organ/internal/bone/B = I
+		if(istype(B))
+			if(B.parent.status & ORGAN_BROKEN)
+				bone_fracture = "[B.broken_description]:"
 
 		var/infection = "None"
 		switch (I.germ_level)
@@ -385,7 +400,7 @@
 			infection += "(being rejected)"
 
 		dat += "<tr>"
-		dat += "<td>[I.name]</td><td>N/A</td><td>[I.damage]</td><td>[infection]:[mech]</td><td></td>"
+		dat += "<td>[I.name]</td><td>N/A</td><td>[I.damage]</td><td>[infection]:[bone_fracture]:[mech]</td><td></td>"
 		dat += "</tr>"
 	dat += "</table>"
 

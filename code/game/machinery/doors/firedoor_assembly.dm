@@ -3,9 +3,9 @@ obj/structure/firedoor_assembly
 	desc = "It can save lives."
 	icon = 'icons/obj/doors/DoorHazard.dmi'
 	icon_state = "door_construction"
-	anchored = 0
+	anchored = FALSE
 	opacity = 0
-	density = 1
+	density = TRUE
 	var/wired = 0
 
 obj/structure/firedoor_assembly/update_icon()
@@ -67,7 +67,7 @@ obj/structure/firedoor_assembly/attackby(obj/item/I, mob/user)
 				wired = 1
 				to_chat(user, SPAN_NOTICE("You wire \the [src]."))
 
-	else if(istype(I, /obj/item/weapon/airalarm_electronics) && wired)
+	else if(istype(I, /obj/item/weapon/electronics/airalarm) && wired)
 		if(anchored)
 			playsound(src.loc, 'sound/items/Deconstruct.ogg', 50, 1)
 			user.visible_message(SPAN_WARNING("[user] has inserted a circuit into \the [src]!"),

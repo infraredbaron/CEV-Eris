@@ -7,9 +7,11 @@
 	w_class = ITEM_SIZE_SMALL
 	throw_speed = 4
 	throw_range = 10
+	price_tag = 300
 	flags = CONDUCT
 	origin_tech = list(TECH_MAGNET = 2, TECH_COMBAT = 1)
 	matter = list(MATERIAL_PLASTIC = 1, MATERIAL_GLASS = 1)
+	rarity_value = 25
 
 	var/times_used = 0 //Number of times it's been used.
 	var/broken = 0     //Is the flash burnt out?

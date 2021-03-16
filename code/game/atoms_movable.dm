@@ -1,20 +1,32 @@
 /atom/movable
 	layer = OBJ_LAYER
-	var/last_move = null
-	var/anchored = 0
+	var/last_move
+	var/anchored = FALSE
 	// var/elevation = 2    - not used anywhere
 	var/move_speed = 10
 	var/l_move_time = 1
 	var/m_flag = 1
 	var/throwing = 0
 	var/thrower
-	var/turf/throw_source = null
+	var/turf/throw_source
 	var/throw_speed = 2
 	var/throw_range = 7
 	var/moved_recently = 0
-	var/mob/pulledby = null
-	var/item_state = null // Used to specify the item state for the on-mob overlays.
+	var/mob/pulledby
+	var/item_state // Used to specify the item state for the on-mob overlays.
 	var/inertia_dir = 0
+	var/can_anchor = TRUE
+
+	//spawn_values
+	var/price_tag = 0 // The item price in credits. atom/movable so we can also assign a price to animals and other things.
+	var/surplus_tag = FALSE //If true, attempting to export this will net you a greatly reduced amount of credits, but we don't want to affect the actual price tag for selling to others.
+	var/spawn_tags
+	var/rarity_value = 1 //min:1
+	var/spawn_frequency = 0 //min:0
+	var/accompanying_object	//path or text "obj/item/weapon,/obj/item/device"
+	var/prob_aditional_object = 100
+	var/spawn_blacklisted = FALSE
+	var/bad_type //path
 
 /atom/movable/Del()
 	if(isnull(gc_destroyed) && loc)
@@ -229,20 +241,20 @@
 			a = get_area(src.loc)
 
 	//done throwing, either because it hit something or it finished moving
+	src.throwing = 0
+	src.thrower = null
+	src.throw_source = null
+
 	var/turf/new_loc = get_turf(src)
 	if(new_loc)
 		if(isobj(src))
 			src.throw_impact(new_loc,speed)
 		new_loc.Entered(src)
-	src.throwing = 0
-	src.thrower = null
-	src.throw_source = null
-
 
 //Overlays
 /atom/movable/overlay
-	var/atom/master = null
-	anchored = 1
+	var/atom/master
+	anchored = TRUE
 
 /atom/movable/overlay/New()
 	for(var/x in src.verbs)
@@ -260,7 +272,7 @@
 	return
 
 /atom/movable/proc/touch_map_edge()
-	if(z in maps_data.sealed_levels)
+	if(z in GLOB.maps_data.sealed_levels)
 		return
 
 	if(config.use_overmap)
@@ -291,12 +303,12 @@
 
 //by default, transition randomly to another zlevel
 /atom/movable/proc/get_transit_zlevel()
-	var/list/candidates = maps_data.accessable_levels.Copy()
+	var/list/candidates = GLOB.maps_data.accessable_levels.Copy()
 	candidates.Remove("[src.z]")
 
 	//If something was ejected from the ship, it does not end up on another part of the ship.
-	if (z in maps_data.station_levels)
-		for (var/n in maps_data.station_levels)
+	if (z in GLOB.maps_data.station_levels)
+		for (var/n in GLOB.maps_data.station_levels)
 			candidates.Remove("[n]")
 
 	if(!candidates.len)
@@ -377,14 +389,43 @@
 			// if we wasn't on map OR our Z coord was changed
 			if( !isturf(oldloc) || (get_z(loc) != get_z(oldloc)) )
 				update_plane()
+				onTransitZ(get_z(oldloc, get_z(loc)))
 
 		SEND_SIGNAL(src, COMSIG_MOVABLE_MOVED, oldloc, loc)
 
 // Wrapper of step() that also sets glide size to a specific value.
-/proc/step_glide(var/atom/movable/am, var/dir, var/glide_size_override)
-	am.set_glide_size(glide_size_override)
-	return step(am, dir)
+/proc/step_glide(atom/movable/AM, newdir, glide_size_override)
+	AM.set_glide_size(glide_size_override)
+	return step(AM, newdir)
+
+//We're changing zlevel
+/atom/movable/proc/onTransitZ(old_z, new_z)//uncomment when something is receiving this signal
+	/*SEND_SIGNAL(src, COMSIG_MOVABLE_Z_CHANGED, old_z, new_z)
+	for(var/atom/movable/AM in src) // Notify contents of Z-transition. This can be overridden IF we know the items contents do not care.
+		AM.onTransitZ(old_z,new_z)*/
+
+/mob/living/proc/update_z(new_z) // 1+ to register, null to unregister
+	if (registered_z != new_z)
+		if (registered_z)
+			SSmobs.mob_living_by_zlevel[registered_z] -= src
+		if (new_z)
+			SSmobs.mob_living_by_zlevel[new_z] += src
+		registered_z = new_z
 
 // if this returns true, interaction to turf will be redirected to src instead
 /atom/movable/proc/preventsTurfInteractions()
 	return FALSE
+
+///Sets the anchored var and returns if it was sucessfully changed or not.
+/atom/movable/proc/set_anchored(anchorvalue)
+	SHOULD_CALL_PARENT(TRUE)
+	if(anchored == anchorvalue || !can_anchor)
+		return FALSE
+	anchored = anchorvalue
+	SEND_SIGNAL(src, COMSIG_ATOM_UNFASTEN, anchored)
+	. = TRUE
+
+/atom/movable/proc/update_overlays()
+	SHOULD_CALL_PARENT(TRUE)
+	. = list()
+	SEND_SIGNAL(src, COMSIG_ATOM_UPDATE_OVERLAYS, .)

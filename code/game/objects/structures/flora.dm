@@ -1,8 +1,8 @@
 //trees
 /obj/structure/flora/tree
 	name = "tree"
-	anchored = 1
-	density = 1
+	anchored = TRUE
+	density = TRUE
 	pixel_x = -16
 	layer = ABOVE_MOB_LAYER
 
@@ -37,7 +37,7 @@
 /obj/structure/flora/grass
 	name = "grass"
 	icon = 'icons/obj/flora/snowflora.dmi'
-	anchored = 1
+	anchored = TRUE
 
 /obj/structure/flora/grass/brown
 	icon_state = "snowgrass1bb"
@@ -67,7 +67,7 @@
 	name = "bush"
 	icon = 'icons/obj/flora/snowflora.dmi'
 	icon_state = "snowbush1"
-	anchored = 1
+	anchored = TRUE
 
 /obj/structure/flora/bush/New()
 	..()
@@ -79,13 +79,19 @@
 	icon_state = "plant-26"
 	layer = ABOVE_MOB_LAYER
 
-//newbushes
+/obj/structure/flora/pottedplant/random/Initialize(mapload)
+	. = ..()
+	var/new_icon = rand(1,26)
+	if(new_icon < 10)
+		new_icon = "0[new_icon]"
+	icon_state = "plant-[new_icon]"
 
+//newbushes
 /obj/structure/flora/ausbushes
 	name = "bush"
 	icon = 'icons/obj/flora/ausflora.dmi'
 	icon_state = "firstbush_1"
-	anchored = 1
+	anchored = TRUE
 
 /obj/structure/flora/ausbushes/New()
 	..()

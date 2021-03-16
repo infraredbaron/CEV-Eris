@@ -5,11 +5,11 @@
 	icon_state = "meterX"
 	layer = GAS_PUMP_LAYER
 	var/obj/machinery/atmospherics/pipe/target = null
-	anchored = 1.0
+	anchored = TRUE
 	power_channel = ENVIRON
 	var/frequency = 0
 	var/id
-	use_power = 1
+	use_power = IDLE_POWER_USE
 	idle_power_usage = 15
 
 /obj/machinery/meter/New()

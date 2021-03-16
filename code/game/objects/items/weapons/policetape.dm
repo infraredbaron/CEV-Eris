@@ -4,6 +4,7 @@
 	icon = 'icons/policetape.dmi'
 	icon_state = "tape"
 	w_class = ITEM_SIZE_SMALL
+	spawn_tags = SPAWN_TAG_ITEM
 	var/turf/start
 	var/turf/end
 	var/tape_type = /obj/item/tape
@@ -16,7 +17,7 @@ var/list/tape_roll_applications = list()
 	name = "tape"
 	icon = 'icons/policetape.dmi'
 	icon_state = "tape"
-	anchored = 1
+	anchored = TRUE
 	var/lifted = 0
 	var/crumpled = 0
 	var/tape_dir = 0
@@ -183,7 +184,7 @@ var/list/tape_roll_applications = list()
 
 		var/can_place = 1
 		while (can_place)
-			if(cur.density == 1)
+			if(cur.density)
 				can_place = 0
 			else if (istype(cur, /turf/space))
 				can_place = 0

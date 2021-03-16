@@ -1,10 +1,13 @@
+/obj/machinery/acting
+	bad_type = /obj/machinery/acting
+
 /obj/machinery/acting/wardrobe
 	name = "wardrobe dispenser"
 	desc = "A machine that dispenses holo-clothing for those in need."
 	icon = 'icons/obj/vending.dmi'
 	icon_state = "cart"
-	anchored = 1
-	density = 1
+	anchored = TRUE
+	density = TRUE
 	var/active = 1
 
 /obj/machinery/acting/wardrobe/attack_hand(var/mob/user as mob)
@@ -21,8 +24,8 @@
 	desc = "For when you need to be someone else right now."
 	icon = 'icons/obj/surgery.dmi'
 	icon_state = "bioprinter"
-	anchored = 1
-	density = 1
+	anchored = TRUE
+	density = TRUE
 
 /obj/machinery/acting/changer/attack_hand(var/mob/user as mob)
 	if(ishuman(user))

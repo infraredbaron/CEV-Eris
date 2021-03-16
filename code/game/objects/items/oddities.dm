@@ -12,46 +12,45 @@
 	item_state = "electronic"
 	w_class = ITEM_SIZE_SMALL
 
-//You choose what stat can be increased, and a maximum value that will be added to this stat
-//The minimum is defined above. The value of change will be decided by random
+	//spawn_values
+	spawn_blacklisted = TRUE
+	spawn_tags = SPAWN_TAG_ODDITY
+	rarity_value = 10
+	bad_type = /obj/item/weapon/oddity
+
+	//You choose what stat can be increased, and a maximum value that will be added to this stat
+	//The minimum is defined above. The value of change will be decided by random
+	var/random_stats = TRUE
 	var/list/oddity_stats
-
 	var/sanity_value = 1
-
+	var/datum/perk/oddity/perk
+	var/prob_perk = 100
 
 /obj/item/weapon/oddity/Initialize()
 	. = ..()
 	AddComponent(/datum/component/atom_sanity, sanity_value, "")
+	if(!perk && prob(prob_perk))
+		perk = get_oddity_perk()
 
 	if(oddity_stats)
-		for(var/stat in oddity_stats)
-			oddity_stats[stat] = rand(1, oddity_stats[stat])
-	AddComponent(/datum/component/inspiration, oddity_stats)
+		if(random_stats)
+			for(var/stat in oddity_stats)
+				oddity_stats[stat] = rand(1, oddity_stats[stat])
+		AddComponent(/datum/component/inspiration, oddity_stats, perk)
 
-
-/obj/item/weapon/oddity/examine(user)
-	..()
-	for(var/stat in oddity_stats)
-		var/aspect
-		switch(oddity_stats[stat])
-			if(10 to INFINITY)
-				aspect = "an <span style='color:#d0b050;'>overwhelming</span>"
-			if(6 to 10)
-				aspect = "a <span class='red'>strong</span>"
-			if(3 to 6)
-				aspect = "a <span class='green'>medium</span>"
-			if(1 to 3)
-				aspect = "a <span class='blue'>weak</span>"
-			else
-				continue
-		to_chat(user, SPAN_NOTICE("This item has [aspect] aspect of [stat]"))
-
+/proc/get_oddity_perk()
+	return pick(subtypesof(/datum/perk/oddity))
 
 //Oddities are separated into categories depending on their origin. They are meant to be used both in maints and derelicts, so this is important
 //This is done by subtypes, because this way even densiest code monkey will not able to misuse them
 //They are meant to be put in appropriate random spawners
 
 //Common - you can find those everywhere
+/obj/item/weapon/oddity/common
+	prob_perk = 60
+	bad_type = /obj/item/weapon/oddity/common
+	spawn_blacklisted = FALSE
+
 /obj/item/weapon/oddity/common/blueprint
 	name = "strange blueprint"
 	desc = "There's no telling what this design is supposed to be. Whatever could be built from this likely wouldn't work."
@@ -60,6 +59,7 @@
 		STAT_COG = 5,
 		STAT_MEC = 7,
 	)
+	rarity_value = 15
 
 /obj/item/weapon/oddity/common/coin
 	name = "strange coin"
@@ -97,6 +97,17 @@
 		STAT_TGH = 6,
 		STAT_VIG = 6,
 	)
+	rarity_value = 18
+
+/obj/item/weapon/oddity/common/photo_crime
+	name = "crime scene photo"
+	desc = "It is unclear whether this is a victim of suicide or murder. His face is frozen in a look of agony and terror, and you shudder to think at what his last moments might have been."
+	icon_state = "photo_crime"
+	oddity_stats = list(
+		STAT_COG = 7,
+		STAT_VIG = 7,
+	)
+	rarity_value = 23
 
 /obj/item/weapon/oddity/common/old_newspaper
 	name = "old newspaper"
@@ -117,6 +128,7 @@
 		STAT_COG = 6,
 		STAT_BIO = 6,
 	)
+	rarity_value = 18
 
 /obj/item/weapon/oddity/common/paper_omega
 	name = "collection of obscure reports"
@@ -127,6 +139,7 @@
 		STAT_COG = 8,
 		STAT_BIO = 8,
 	)
+	rarity_value = 27
 
 /obj/item/weapon/oddity/common/book_eyes
 	name = "observer book"
@@ -137,6 +150,7 @@
 		STAT_TGH = 9,
 		STAT_VIG = 9,
 	)
+	rarity_value = 30
 
 /obj/item/weapon/oddity/common/book_omega
 	name = "occult book"
@@ -147,6 +161,7 @@
 		STAT_ROB = 6,
 		STAT_VIG = 6,
 	)
+	rarity_value = 18
 
 /obj/item/weapon/oddity/common/book_bible
 	name = "old bible"
@@ -157,6 +172,16 @@
 		STAT_VIG = 5,
 	)
 
+/obj/item/weapon/oddity/common/book_unholy
+	name = "unholy book"
+	desc = "The writings inside entail some strange ritual. Pages have been torn out or smudged to illegibility."
+	icon_state = "book_skull"
+	oddity_stats = list(
+		STAT_COG = 7,
+		STAT_MEC = 7,
+	)
+	rarity_value = 24
+
 /obj/item/weapon/oddity/common/old_money
 	name = "old money"
 	desc = "It's not like the organization that issued this exists anymore."
@@ -165,6 +190,7 @@
 		STAT_ROB = 4,
 		STAT_TGH = 4,
 	)
+	rarity_value = 8
 
 /obj/item/weapon/oddity/common/healthscanner
 	name = "odd health scanner"
@@ -175,6 +201,7 @@
 		STAT_COG = 8,
 		STAT_BIO = 8,
 	)
+	rarity_value = 23
 
 /obj/item/weapon/oddity/common/old_pda
 	name = "broken pda"
@@ -185,6 +212,7 @@
 		STAT_COG = 6,
 		STAT_MEC = 6,
 	)
+	rarity_value = 15
 
 /obj/item/weapon/oddity/common/towel
 	name = "trustworthy towel"
@@ -194,6 +222,7 @@
 		STAT_ROB = 6,
 		STAT_TGH = 6,
 	)
+	rarity_value = 15
 
 /obj/item/weapon/oddity/common/teddy
 	name = "teddy bear"
@@ -204,6 +233,7 @@
 		STAT_TGH = 7,
 		STAT_VIG = 7,
 	)
+	rarity_value = 20
 
 /obj/item/weapon/oddity/common/old_knife
 	name = "old knife"
@@ -215,14 +245,14 @@
 	attack_verb = list("slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
 	hitsound = 'sound/weapons/bladeslice.ogg'
 	slot_flags = SLOT_BELT
-	sharp = 1
-	edge = 1
-
+	sharp = TRUE
+	edge = TRUE
 	oddity_stats = list(
 		STAT_ROB = 5,
 		STAT_TGH = 5,
 		STAT_VIG = 5,
 	)
+	rarity_value = 22
 
 /obj/item/weapon/oddity/common/old_id
 	name = "old id"
@@ -232,6 +262,42 @@
 		STAT_VIG = 9,
 	)
 
+/obj/item/weapon/oddity/common/disk
+	name = "broken design disk"
+	desc = "This disk is corrupted and completely unusable. It has a hand-drawn picture of some strange mechanism on it - looking at it for too long makes your head hurt."
+	icon_state = "disc"
+	oddity_stats = list(
+		STAT_MEC = 9,
+	)
+
+/obj/item/weapon/oddity/common/mirror
+	name = "cracked mirror"
+	desc = "A thousand mirror images stare back at you as you examine the trinket. What if you're the reflection, staring back out at the real world? At the real you?"
+	icon_state = "mirror"
+	oddity_stats = list(
+		STAT_COG = 4,
+		STAT_VIG = 4,
+	)
+	rarity_value = 8
+
+/obj/item/weapon/oddity/common/lighter
+	name = "rusted lighter"
+	desc = "This zippo ligher has been rusted shut. It smells faintly of sulphur and blood."
+	icon_state = "syndicate_lighter"
+	oddity_stats = list(
+		STAT_TGH = 9,
+	)
+
+/obj/item/weapon/oddity/common/device
+	name = "odd device"
+	desc = "Something about this gadget both disturbs and interests you. It's manufacturer's name has been mostly smudged away, but you can see a strange mechanism as their logo."
+	icon_state = "device"
+	oddity_stats = list(
+		STAT_MEC = 8,
+		STAT_COG = 8,
+	)
+	rarity_value = 19
+
 /obj/item/weapon/oddity/common/old_radio
 	name = "old radio"
 	desc = "Close your eyes, bring it closer and listen. You can almost hear it, in the edge of your consciousness. The World is ticking."
@@ -240,6 +306,7 @@
 		STAT_COG = 9,
 		STAT_VIG = 9,
 	)
+	rarity_value = 23
 
 /obj/item/weapon/oddity/common/paper_bundle
 	name = "paper bundle"
@@ -250,3 +317,114 @@
 		STAT_ROB = 6,
 		STAT_VIG = 6,
 	)
+	rarity_value = 16
+
+/obj/item/weapon/oddity/techno
+	name = "Unknown technological part"
+	desc = "Technological part maded by Techno-Tribalism Enforcer."
+	icon_state = "techno_part1"
+
+/obj/item/weapon/oddity/techno/Initialize()
+	icon_state = "techno_part[rand(1,7)]"
+	.=..()
+
+/obj/item/weapon/oddity/broken_necklace
+	name = "Broken necklace"
+	desc = "A broken necklace that has a blue crystal as a trinket."
+	icon_state = "broken_necklace"
+	origin_tech = list(TECH_BLUESPACE = 9)
+	spawn_frequency = 0//unique
+	oddity_stats = list(
+		STAT_COG = 9,
+		STAT_VIG = 9,
+		STAT_ROB = 9,
+		STAT_TGH = 9,
+		STAT_BIO = 9,
+		STAT_MEC = 9
+	)
+	var/cooldown
+	var/entropy_value = 5
+	var/blink_range = 8
+
+/obj/item/weapon/oddity/broken_necklace/New()
+	..()
+	GLOB.bluespace_gift += 1
+	GLOB.bluespace_entropy -= rand(30, 50)
+
+/obj/item/weapon/oddity/broken_necklace/Destroy()
+	var/turf/T = get_turf(src)
+	if(T)
+		bluespace_entropy(80,T)
+		new /obj/item/bluespace_dust(T)
+	GLOB.bluespace_gift -= 1
+	. = ..()
+
+/obj/item/weapon/oddity/broken_necklace/attack_self(mob/user)
+	if(world.time < cooldown)
+		return
+	cooldown = world.time + 3 SECONDS
+	user.visible_message(SPAN_WARNING("[user] crushes [src]!"), SPAN_DANGER("You crush [src]!"))
+	var/datum/effect/effect/system/spark_spread/sparks = new /datum/effect/effect/system/spark_spread()
+	sparks.set_up(3, 0, get_turf(user))
+	sparks.start()
+	var/turf/T = get_random_secure_turf_in_range(user, blink_range, 2)
+	go_to_bluespace(get_turf(user), entropy_value, TRUE, user, T)
+	for(var/obj/item/weapon/grab/G in user.contents)
+		if(G.affecting)
+			go_to_bluespace(get_turf(user), entropy_value, FALSE, G.affecting, locate(T.x+rand(-1,1),T.y+rand(-1,1),T.z))
+	if(prob(1))
+		qdel(src)
+
+/obj/item/weapon/oddity/broken_necklace/throw_impact(atom/movable/hit_atom)
+	if(!..()) // not caught in mid-air
+		visible_message(SPAN_NOTICE("[src] fizzles upon impact!"))
+		var/turf/T = get_turf(hit_atom)
+		var/datum/effect/effect/system/spark_spread/sparks = new /datum/effect/effect/system/spark_spread()
+		sparks.set_up(3, 0, T)
+		sparks.start()
+		if(!hit_atom.anchored)
+			var/turf/NT = get_random_turf_in_range(hit_atom, blink_range, 2)
+			go_to_bluespace(T, entropy_value, TRUE, hit_atom, NT)
+		if(prob(1))
+			qdel(src)
+
+//A randomized oddity with random stats, meant for artist job project
+/obj/item/weapon/oddity/artwork
+	name = "Strange Device"
+	desc = "You can't find out how to turn it on. Maybe it's already working?"
+	icon_state = "artwork_1"
+	price_tag = 200
+	prob_perk = 0//no perks for artwork oddities
+	spawn_frequency = 0
+
+/obj/item/weapon/oddity/artwork/Initialize()
+	name = get_weapon_name(capitalize = TRUE)
+	icon_state = "artwork_[rand(1,6)]"
+	. = ..()
+
+/obj/item/weapon/oddity/artwork/get_item_cost(export)
+	. = ..()
+	GET_COMPONENT(comp_sanity, /datum/component/atom_sanity)
+	. += comp_sanity.affect * 100
+	GET_COMPONENT(comp_insp, /datum/component/inspiration)
+	var/list/true_stats = comp_insp.calculate_statistics()
+	for(var/stat in true_stats)
+		. += true_stats[stat] * 50
+
+//NT Oddities
+/obj/item/weapon/oddity/nt
+	bad_type = /obj/item/weapon/oddity/nt
+	spawn_blacklisted = TRUE
+	random_stats = FALSE
+
+/obj/item/weapon/oddity/nt/seal
+	name = "High Inquisitor's Seal"
+	desc = "An honorary badge given to the most devout of NeoTheologian preachers by the High Inquisitor. Such a badge is a rare sight indeed - rumor has it that the badge imbues the holder with the power of the Angels themselves."
+	icon_state = "nt_seal"
+	oddity_stats = list(
+		STAT_COG = 12,
+		STAT_VIG = 12,
+		STAT_ROB = 8
+	)
+	price_tag = 8000
+	perk = /datum/perk/nt_oddity/holy_light

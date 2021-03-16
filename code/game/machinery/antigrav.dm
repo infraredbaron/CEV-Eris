@@ -2,12 +2,12 @@
 	name = "antigrav generator"
 	desc = "It temporarily disables gravity around."
 	icon_state = "GraviMobile"
-	density = 1
-	anchored = 0
-	use_power = 1
+	density = TRUE
+	anchored = FALSE
+	use_power = IDLE_POWER_USE
 	idle_power_usage = 0
 	active_power_usage = 10000
-	circuit = /obj/item/weapon/circuitboard/antigrav
+	circuit = /obj/item/weapon/electronics/circuitboard/antigrav
 
 	var/power_usage_per_tile = 200
 	var/on = FALSE
@@ -34,7 +34,7 @@
 		start_anim()
 
 	on = TRUE
-	use_power = 2
+	use_power = ACTIVE_POWER_USE
 	update_icon()
 
 /obj/machinery/antigrav/examine(var/mob/user)
@@ -53,7 +53,7 @@
 		stop_anim()
 
 	on = FALSE
-	use_power = 1
+	use_power = IDLE_POWER_USE
 	update_icon()
 
 /obj/machinery/antigrav/Process()
@@ -82,7 +82,7 @@
 						SPAN_NOTICE("\The [user] unfastens \the [src]."), \
 						SPAN_NOTICE("You have unfastened \the [src]. Now it can be pulled somewhere else."), \
 						"You hear ratchet.")
-					src.anchored = 0
+					src.anchored = FALSE
 			else
 				to_chat(user, SPAN_WARNING("Turn off \the [src] first."))
 		else
@@ -92,7 +92,7 @@
 					SPAN_NOTICE("\The [user] fastens \the [src]."), \
 					SPAN_NOTICE("You have fastened \the [src]. Now it can counteract gravity."), \
 					"You hear ratchet.")
-				src.anchored = 1
+				src.anchored = TRUE
 		update_icon()
 	else
 		return ..()

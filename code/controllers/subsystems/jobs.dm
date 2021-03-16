@@ -108,9 +108,13 @@ SUBSYSTEM_DEF(job)
 		if(job in command_positions) //If you want a command position, select it!
 			continue
 
+		if(job.is_restricted(player.client.prefs))
+			continue
+
 		if(jobban_isbanned(player, job.title))
 			Debug("GRJ isbanned failed, Player: [player], Job: [job.title]")
 			continue
+
 		var/datum/category_item/setup_option/core_implant/I = player.client.prefs.get_option("Core implant")
 		// cant be Neotheology without a cruciform
 		if(job.department == DEPARTMENT_CHURCH && istype(I.implant_type,/obj/item/weapon/implant/core_implant/cruciform))
@@ -336,7 +340,7 @@ SUBSYSTEM_DEF(job)
 
 		// EMAIL GENERATION
 		if(rank != "Robot" && rank != "AI")		//These guys get their emails later.
-			ntnet_global.create_email(H, H.real_name, pick(maps_data.usable_email_tlds))
+			ntnet_global.create_email(H, H.real_name, pick(GLOB.maps_data.usable_email_tlds))
 
 	else
 		to_chat(H, "Your job is [rank] and the game just can't handle it! Please report this bug to an administrator.")
@@ -410,7 +414,7 @@ SUBSYSTEM_DEF(job)
 	BITSET(H.hud_updateflag, SPECIALROLE_HUD)
 	return H
 
-proc/EquipCustomLoadout(var/mob/living/carbon/human/H, var/datum/job/job)
+/proc/EquipCustomLoadout(var/mob/living/carbon/human/H, var/datum/job/job)
 	if(!H || !H.client)
 		return
 
@@ -530,7 +534,7 @@ proc/EquipCustomLoadout(var/mob/living/carbon/human/H, var/datum/job/job)
 		if(pref_spawn)
 			SP = get_spawn_point(pref_spawn, late = TRUE)
 		else
-			SP = get_spawn_point(maps_data.default_spawn, late = TRUE)
+			SP = get_spawn_point(GLOB.maps_data.default_spawn, late = TRUE)
 			to_chat(H, SPAN_WARNING("You have not selected spawnpoint in preference menu."))
 	else
 		SP = get_spawn_point(rank)
@@ -577,5 +581,5 @@ proc/EquipCustomLoadout(var/mob/living/carbon/human/H, var/datum/job/job)
 /datum/controller/subsystem/job/proc/ShouldCreateRecords(var/title)
 	if(!title) return 0
 	var/datum/job/job = GetJob(title)
-	if(!job) return 0
+	if(!job || job == "Vagabond") return 0
 	return job.create_record

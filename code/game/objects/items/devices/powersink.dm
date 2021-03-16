@@ -10,10 +10,11 @@
 	throwforce = WEAPON_FORCE_PAINFUL
 	throw_speed = 1
 	throw_range = 2
+	spawn_blacklisted = TRUE
 
 	matter = list(MATERIAL_PLASTIC = 8, MATERIAL_STEEL = 8, MATERIAL_GLASS = 3)
 
-	origin_tech = list(TECH_POWER = 3, TECH_ILLEGAL = 5)
+	origin_tech = list(TECH_POWER = 3, TECH_COVERT = 5)
 	var/drain_rate = 1500000		// amount of power to drain per tick
 	var/apc_drain_rate = 5000 		// Max. amount drained from single APC. In Watts.
 	var/dissipation_rate = 20000	// Passive dissipation of drained power. In Watts.
@@ -41,7 +42,7 @@
 						to_chat(user, "No exposed cable here to attach to.")
 						return
 					else
-						anchored = 1
+						anchored = TRUE
 						mode = 1
 						src.visible_message(SPAN_NOTICE("[user] attaches [src] to the cable!"))
 						return
@@ -51,7 +52,7 @@
 			else
 				if (mode == 2)
 					STOP_PROCESSING_POWER_OBJECT(src)
-				anchored = 0
+				anchored = FALSE
 				mode = 0
 				src.visible_message(SPAN_NOTICE("[user] detaches [src] from the cable!"))
 				set_light(0)

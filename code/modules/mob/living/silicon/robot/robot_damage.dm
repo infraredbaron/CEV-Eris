@@ -62,7 +62,7 @@
 	var/datum/robot_component/picked = pick(parts)
 	picked.heal_damage(brute,burn)
 
-/mob/living/silicon/robot/take_organ_damage(var/brute = 0, var/burn = 0, var/sharp = 0, var/edge = 0, var/emp = 0)
+/mob/living/silicon/robot/take_organ_damage(var/brute = 0, var/burn = 0, var/sharp = FALSE, var/edge = FALSE, var/emp = 0)
 	var/list/components = get_damageable_components()
 	if(!components.len)
 		return
@@ -74,7 +74,7 @@
 		var/absorb_brute_cost = (brute*shield.shield_level)*100
 		var/absorb_burn_cost = (burn*shield.shield_level)*100
 
-		if(cell.empty())
+		if(cell.is_empty())
 			to_chat(src, "\red Your shield has overloaded!")
 		else
 			var/absorb_brute = cell.use(absorb_brute_cost)/100
@@ -108,7 +108,7 @@
 
 		parts -= picked
 
-/mob/living/silicon/robot/take_overall_damage(brute = 0, burn = 0, sharp = 0, used_weapon = null)
+/mob/living/silicon/robot/take_overall_damage(brute = 0, burn = 0, sharp = FALSE, used_weapon = null)
 	if(status_flags & GODMODE)	return	//godmode
 	var/list/datum/robot_component/parts = get_damageable_components()
 
@@ -119,7 +119,7 @@
 		var/absorb_brute_cost = (brute*shield.shield_level)*100
 		var/absorb_burn_cost = (burn*shield.shield_level)*100
 
-		if(cell.empty())
+		if(cell.is_empty())
 			to_chat(src, "\red Your shield has overloaded!")
 		else
 			var/absorb_brute = cell.use(absorb_brute_cost)/100

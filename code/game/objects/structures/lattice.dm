@@ -3,7 +3,7 @@
 	desc = "A lightweight support lattice."
 	icon = 'icons/obj/structures.dmi'
 	icon_state = "latticefull"
-	density = 0
+	density = FALSE
 	plane = FLOOR_PLANE
 	anchored = TRUE
 	w_class = ITEM_SIZE_NORMAL
@@ -38,13 +38,13 @@
 
 /obj/structure/lattice/ex_act(severity)
 	switch(severity)
-		if(1.0)
+		if(1)
 			qdel(src)
 			return
-		if(2.0)
+		if(2)
 			qdel(src)
 			return
-		if(3.0)
+		if(3)
 			return
 		else
 	return
@@ -53,7 +53,7 @@
 	if(I.get_tool_type(user, list(QUALITY_WELDING), src))
 		if(I.use_tool(user, src, WORKTIME_FAST, QUALITY_WELDING, FAILCHANCE_EASY, required_stat = STAT_MEC))
 			to_chat(user, SPAN_NOTICE("Slicing lattice joints ..."))
-			new /obj/item/stack/rods(loc)
+			new /obj/item/stack/rods(get_turf(user))
 			qdel(src)
 	if (istype(I, /obj/item/stack/rods) || istype(I, /obj/item/stack/rods/cyborg))
 		var/obj/item/stack/rods/R = I

@@ -24,7 +24,7 @@
 	var/has_floating_eyes                                // Eyes will overlay over darkness (glow)
 	var/blood_color = "#A10808"                          // Red.
 	var/flesh_color = "#FFC896"                          // Pink.
-	var/base_color                                       // Used by changelings. Should also be used for icon previes..
+	var/base_color                                       // Used by carrions. Should also be used for icon previes..
 	var/tail                                             // Name of tail state in species effects icon file.
 	var/tail_animation                                   // If set, the icon to obtain tail animation states from.
 	var/race_key = 0       	                             // Used for mob icon cache string.
@@ -128,18 +128,21 @@
 	var/slowdown = 0              // Passive movement speed malus (or boost, if negative)
 	var/primitive_form            // Lesser form, if any (ie. monkey for humans)
 	var/greater_form              // Greater form, if any, ie. human for monkeys.
+	var/lower_sanity_process	  // Controls how much sanity is processed on the mob for performance reasons.
 	var/holder_type
 	var/gluttonous                // Can eat some mobs. Values can be GLUT_TINY, GLUT_SMALLER, GLUT_ANYTHING.
-	var/rarity_value = 1          // Relative rarity/collector value for this species.
+	var/species_rarity_value = 1          // Relative rarity/collector value for this species.
 	                              // Determines the organs that the species spawns with and
-	var/list/has_organ = list(    // which required-organ checks are conducted.
-		BP_HEART =    /obj/item/organ/internal/heart,
-		BP_LUNGS =    /obj/item/organ/internal/lungs,
-		BP_LIVER =    /obj/item/organ/internal/liver,
-		BP_KIDNEYS =  /obj/item/organ/internal/kidneys,
+	var/list/has_process = list(    // which required-process checks are conducted and defalut organs for them.
+		OP_HEART =    /obj/item/organ/internal/heart,
+		OP_LUNGS =    /obj/item/organ/internal/lungs,
+		OP_STOMACH =  /obj/item/organ/internal/stomach,
+		OP_LIVER =    /obj/item/organ/internal/liver,
+		OP_KIDNEY_LEFT =  /obj/item/organ/internal/kidney/left,
+		OP_KIDNEY_RIGHT = /obj/item/organ/internal/kidney/right,
 		BP_BRAIN =    /obj/item/organ/internal/brain,
-		BP_APPENDIX = /obj/item/organ/internal/appendix,
-		BP_EYES =     /obj/item/organ/internal/eyes
+		OP_APPENDIX = /obj/item/organ/internal/appendix,
+		OP_EYES =     /obj/item/organ/internal/eyes
 		)
 	var/vision_organ              // If set, this organ is required for vision. Defaults to "eyes" if the species has them.
 
@@ -174,7 +177,7 @@
 		hud = new()
 
 	//If the species has eyes, they are the default vision organ
-	if(!vision_organ && has_organ[BP_EYES])
+	if(!vision_organ && has_process[OP_EYES])
 		vision_organ = BP_EYES
 
 	unarmed_attacks = list()
@@ -209,10 +212,10 @@
 			if(covered)
 				to_chat(H, SPAN_DANGER("[pick(heat_discomfort_strings)]"))
 
-/datum/species/proc/sanitize_name(var/name)
+/datum/species/proc/sanitize_name(name)
 	return sanitizeName(name)
 
-/datum/species/proc/get_random_name(var/gender)
+/datum/species/proc/get_random_name(gender)
 	if(!name_language)
 		if(gender == FEMALE)
 			return capitalize(pick(GLOB.first_names_female)) + " " + capitalize(pick(GLOB.last_names))
@@ -226,10 +229,36 @@
 		return "unknown"
 	return species_language.get_random_name(gender)
 
-/datum/species/proc/organs_spawned(var/mob/living/carbon/human/H)
+/datum/species/proc/get_random_first_name(gender)
+	if(!name_language)
+		if(gender == FEMALE)
+			return capitalize(pick(GLOB.first_names_female))
+		else
+			return capitalize(pick(GLOB.first_names_male))
+
+	var/datum/language/species_language = all_languages[name_language]
+	if(!species_language)
+		species_language = all_languages[default_language]
+	if(!species_language)
+		return "unknown"
+	return species_language.get_random_name(gender)
+
+/datum/species/proc/get_random_last_name()
+	if(!name_language)
+		return capitalize(pick(GLOB.last_names))
+
+	var/datum/language/species_language = all_languages[name_language]
+	if(!species_language)
+		species_language = all_languages[default_language]
+	if(!species_language)
+		return "unknown"
+	return species_language.get_random_name()
+
+
+/datum/species/proc/organs_spawned(mob/living/carbon/human/H)
 	return
 
-/datum/species/proc/hug(var/mob/living/carbon/human/H,var/mob/living/target)
+/datum/species/proc/hug(mob/living/carbon/human/H,var/mob/living/target)
 
 	var/t_him = "them"
 	switch(target.gender)

@@ -5,8 +5,8 @@
 	desc = "The HT-451, a torque rotation-based, waste disposal unit for small matter. This one seems remarkably clean."
 	icon = 'icons/obj/watercloset.dmi'
 	icon_state = "toilet00"
-	density = 0
-	anchored = 1
+	density = FALSE
+	anchored = TRUE
 	layer = SIGN_LAYER
 	var/open = 0			//if the lid is up
 	var/cistern = 0			//if the cistern bit is open
@@ -50,7 +50,7 @@
 /obj/structure/toilet/attackby(obj/item/I as obj, mob/living/user as mob)
 	if(QUALITY_PRYING in I.tool_qualities)
 		to_chat(user, "<span class='notice'>You start to [cistern ? "replace the lid on the cistern" : "lift the lid off the cistern"].</span>")
-		if(I.use_tool(user, src, WORKTIME_NORMAL, QUALITY_WELDING, FAILCHANCE_EASY, required_stat = STAT_MEC))
+		if(I.use_tool(user, src, WORKTIME_NORMAL, QUALITY_PRYING, FAILCHANCE_EASY, required_stat = STAT_MEC))
 			user.visible_message("<span class='notice'>[user] [cistern ? "replaces the lid on the cistern" : "lifts the lid off the cistern"]!</span>", "<span class='notice'>You [cistern ? "replace the lid on the cistern" : "lift the lid off the cistern"]!</span>", "You hear grinding porcelain.")
 			cistern = !cistern
 			update_icon()
@@ -122,8 +122,8 @@
 	desc = "The HU-452, an experimental urinal."
 	icon = 'icons/obj/watercloset.dmi'
 	icon_state = "urinal"
-	density = 0
-	anchored = 1
+	density = FALSE
+	anchored = TRUE
 
 /obj/structure/urinal/affect_grab(var/mob/living/user, var/mob/living/target, var/state)
 	if(state == GRAB_PASSIVE)
@@ -150,10 +150,10 @@
 	desc = "The HS-451. Installed in the 2550s by the Hygiene Division."
 	icon = 'icons/obj/watercloset.dmi'
 	icon_state = "shower"
-	density = 0
-	anchored = 1
-	use_power = 0
-	var/on = 0
+	density = FALSE
+	anchored = TRUE
+	use_power = NO_POWER_USE
+	var/on = FALSE
 	var/obj/effect/mist/mymist = null
 	var/ismist = 0				//needs a var so we can make it linger~
 	var/watertemp = "normal"	//freezing, normal, or boiling
@@ -171,7 +171,7 @@
 	icon = 'icons/obj/watercloset.dmi'
 	icon_state = "mist"
 	layer = FLY_LAYER
-	anchored = 1
+	anchored = TRUE
 	mouse_opacity = 0
 
 /obj/machinery/shower/attack_hand(mob/M as mob)
@@ -189,7 +189,7 @@
 		to_chat(user, SPAN_NOTICE("The water temperature seems to be [watertemp]."))
 	if(QUALITY_BOLT_TURNING in I.tool_qualities)
 		var/newtemp = input(user, "What setting would you like to set the temperature valve to?", "Water Temperature Valve") in temperature_settings
-		if(I.use_tool(user, src, WORKTIME_NORMAL, QUALITY_BOLT_TURNING, FAILCHANCE_EASY,  required_stat = STAT_MEC))
+		if(I.use_tool(user, src, WORKTIME_FAST, QUALITY_BOLT_TURNING, FAILCHANCE_VERY_EASY,  required_stat = STAT_MEC))
 			watertemp = newtemp
 			user.visible_message(SPAN_NOTICE("\The [user] adjusts \the [src] with \the [I]."), SPAN_NOTICE("You adjust the shower with \the [I]."))
 			add_fingerprint(user)
@@ -365,7 +365,7 @@
 	icon = 'icons/obj/watercloset.dmi'
 	icon_state = "sink"
 	desc = "A sink used for washing one's hands and face."
-	anchored = 1
+	anchored = TRUE
 	reagent_flags = OPENCONTAINER
 	var/busy = 0 	//Something's being washed at the moment
 

@@ -7,7 +7,9 @@
 	throw_range = 5
 	w_class = ITEM_SIZE_SMALL
 	matter = list(MATERIAL_PLASTIC = 2, MATERIAL_STEEL = 1)
-	var/obj/item/weapon/implant/implant = null
+	var/obj/item/weapon/implant/implant
+	spawn_tags = SPAWN_TAG_JUNK
+	rarity_value = 6
 
 /obj/item/weapon/implanter/New()
 	..()
@@ -16,7 +18,7 @@
 		update_icon()
 
 
-/obj/item/weapon/implanter/attack_self(var/mob/user)
+/obj/item/weapon/implanter/attack_self(mob/user)
 	if(!implant)
 		return ..()
 	user.put_in_hands(implant)
@@ -65,5 +67,15 @@
 			"Implanted with \the [src.name] ([implant.name])",
 			"used an implanter, [src.name] ([implant.name]), on"
 			)
+
+			if(istype(implant, /obj/item/weapon/implant/excelsior) && ishuman(M))
+				var/datum/faction/F = get_faction_by_id(FACTION_EXCELSIOR)
+				var/datum/objective/timed/excelsior/E = (locate(/datum/objective/timed/excelsior) in F.objectives)
+				if(E)
+					if(!E.active)
+						E.start_excel_timer()
+					else
+						E.on_convert()
+
 			implant = null
 			update_icon()

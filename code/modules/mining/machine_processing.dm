@@ -4,8 +4,8 @@
 	name = "production machine console"
 	icon = 'icons/obj/machines/mining_machines.dmi'
 	icon_state = "console"
-	density = 1
-	anchored = 1
+	density = TRUE
+	anchored = TRUE
 
 	var/obj/machinery/mineral/processing_unit/machine = null
 	var/show_all_ores = 0
@@ -99,8 +99,8 @@
 	name = "material processor" //This isn't actually a goddamn furnace, we're in space and it's processing platinum and flammable plasma...
 	icon = 'icons/obj/machines/mining_machines.dmi'
 	icon_state = "furnace"
-	density = 1
-	anchored = 1
+	density = TRUE
+	anchored = TRUE
 	light_range = 3
 	var/obj/machinery/mineral/console = null
 	var/sheets_per_tick = 10
@@ -142,15 +142,13 @@
 
 /obj/machinery/mineral/processing_unit/Process()
 
-	if (!output_dir || !input_dir) return
+	if(!output_dir || !input_dir)
+		return
 
 	var/list/tick_alloys = list()
 
 	//Grab some more ore to process this tick.
-	var/limit = sheets_per_tick
 	for(var/obj/item/weapon/ore/O in get_step(src, input_dir))
-		if(--limit <= 0)
-			break
 		if(!isnull(ores_stored[O.material]))
 			ores_stored[O.material]++
 		qdel(O)

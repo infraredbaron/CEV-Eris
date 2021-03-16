@@ -39,15 +39,15 @@
 	icon = 'icons/effects/effects.dmi'
 	icon_state = "energynet"
 
-	density = 1
+	density = TRUE
 	opacity = 0
 	mouse_opacity = 1
-	anchored = 1
+	anchored = TRUE
 	layer = ABOVE_ALL_MOB_LAYER
 
 	var/health = 25
-	var/mob/living/affecting = null //Who it is currently affecting, if anyone.
-	var/mob/living/master = null    //Who shot web. Will let this person know if the net was successful.
+	var/mob/living/affecting //Who it is currently affecting, if anyone.
+	var/mob/living/master    //Who shot web. Will let this person know if the net was successful.
 	var/countdown = -1
 
 /obj/effect/energy_net/teleport
@@ -71,7 +71,7 @@
 /obj/effect/energy_net/proc/healthcheck()
 
 	if(health <=0)
-		density = 0
+		density = FALSE
 		src.visible_message("The energy net is torn apart!")
 		qdel(src)
 	return

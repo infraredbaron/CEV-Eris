@@ -3,9 +3,9 @@
 	desc = "This device injects antimatter into connected shielding units. The more antimatter injected into it, the more power it produces.  Wrench the device to set it up."
 	icon = 'icons/obj/machines/antimatter.dmi'
 	icon_state = "control"
-	anchored = 1
-	density = 1
-	use_power = 1
+	anchored = TRUE
+	density = TRUE
+	use_power = IDLE_POWER_USE
 	idle_power_usage = 100
 	active_power_usage = 1000
 
@@ -103,11 +103,11 @@
 
 /obj/machinery/power/am_control_unit/ex_act(severity)
 	switch(severity)
-		if(1.0)
+		if(1)
 			stability -= 60
-		if(2.0)
+		if(2)
 			stability -= 40
-		if(3.0)
+		if(3)
 			stability -= 20
 	check_stability()
 	return
@@ -142,13 +142,13 @@
 				user.visible_message("[user.name] secures the [src.name] to the floor.", \
 					"You secure the anchor bolts to the floor.", \
 					"You hear a ratchet")
-				src.anchored = 1
+				src.anchored = TRUE
 				connect_to_network()
 			else if(!linked_shielding.len > 0)
 				user.visible_message("[user.name] unsecures the [src.name].", \
 					"You remove the anchor bolts.", \
 					"You hear a ratchet")
-				src.anchored = 0
+				src.anchored = FALSE
 				disconnect_from_network()
 			return
 
@@ -204,10 +204,10 @@
 /obj/machinery/power/am_control_unit/proc/toggle_power()
 	active = !active
 	if(active)
-		use_power = 2
+		use_power = ACTIVE_POWER_USE
 		visible_message("The [src.name] starts up.")
 	else
-		use_power = 1
+		use_power = IDLE_POWER_USE
 		visible_message("The [src.name] shuts down.")
 	update_icon()
 	return

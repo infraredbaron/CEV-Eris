@@ -30,7 +30,7 @@
 	title = "Security Announcement"
 	announcement_type = "Security Announcement"
 
-/datum/announcement/proc/Announce(var/message as text, var/new_title = "", var/new_sound = null, var/do_newscast = newscast, var/msg_sanitized = 0, var/zlevels = maps_data.contact_levels)
+/datum/announcement/proc/Announce(var/message as text, var/new_title = "", var/new_sound = null, var/do_newscast = newscast, var/msg_sanitized = 0, var/zlevels = GLOB.maps_data.contact_levels)
 	if(!message)
 		return
 	var/message_title = new_title ? new_title : title
@@ -45,7 +45,7 @@
 		NewsCast(message, message_title)
 
 	for(var/mob/M in GLOB.player_list)
-		if((M.z in (zlevels | maps_data.admin_levels)) && !istype(M,/mob/new_player) && !isdeaf(M) && message_sound)
+		if((M.z in (zlevels | GLOB.maps_data.admin_levels)) && !istype(M,/mob/new_player) && !isdeaf(M) && message_sound)
 			sound_to(M, message_sound)
 	Log(message, message_title)
 
@@ -104,6 +104,15 @@ datum/announcement/proc/Log(message as text, message_title as text)
 
 /proc/level_seven_announcement()
 	command_announcement.Announce("Confirmed outbreak of level 7 biohazard aboard [station_name()]. All personnel must contain the outbreak.", "Biohazard Alert", new_sound = 'sound/AI/outbreak7.ogg')
+
+/proc/level_eight_announcement() //new announcment so the crew doesn't have to fuck around trying to figure out if its a blob, hivemind, or a literal fungus
+	command_announcement.Announce("Confirmed outbreak of level 8 Bio-mechanical infestation aboard [station_name()]. All personnel must contain the outbreak.", "Biohazard Alert")
+
+/proc/level_eight_beta_announcement() //announcment which tells the crew that the hivemind has been killed, job well done crew.
+	command_announcement.Announce("Diagnostic Systems report level 8 Bio-mechanical infestation aboard [station_name()] has been contained.")
+
+/proc/level_nine_announcement()
+	command_announcement.Announce("Confirmed outbreak of level 9 Excelsior communist infestation aboard [station_name()]. All personnel must contain the outbreak.", "Biohazard Alert")
 
 /proc/ion_storm_announcement()
 	command_announcement.Announce("It has come to our attention that the ship passed through an ion storm.  Please monitor all electronic equipment for malfunctions.", "Anomaly Alert")

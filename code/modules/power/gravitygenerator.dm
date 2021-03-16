@@ -19,9 +19,9 @@ var/const/GRAV_NEEDS_WRENCH = 3
 	name = "gravitational generator"
 	desc = "A device which produces a gravaton field when set up."
 	icon = 'icons/obj/machines/gravity_generator.dmi'
-	anchored = 1
-	density = 1
-	use_power = 0
+	anchored = TRUE
+	density = TRUE
+	use_power = NO_POWER_USE
 	unacidable = 1
 	var/sprite_number = 0
 
@@ -104,9 +104,9 @@ var/const/GRAV_NEEDS_WRENCH = 3
 	active_power_usage = 3000
 	power_channel = ENVIRON
 	sprite_number = 8
-	use_power = 1
+	use_power = IDLE_POWER_USE
 	interact_offline = 1
-	var/on = 1
+	var/on = TRUE
 	var/breaker = 1
 	var/list/parts = list()
 	var/obj/middle = null
@@ -117,7 +117,7 @@ var/const/GRAV_NEEDS_WRENCH = 3
 
 /obj/machinery/gravity_generator/main/Destroy() // If we somehow get deleted, remove all of our other parts.
 	investigate_log("was destroyed!", "gravity")
-	on = 0
+	on = FALSE
 	grav_off()
 	for(var/obj/machinery/gravity_generator/part/O in parts)
 		O.main_part = null
@@ -137,7 +137,7 @@ var/const/GRAV_NEEDS_WRENCH = 3
 		if(count == 5) // Middle
 			middle = part
 		if(count <= 3) // Their sprite is the top part of the generator
-			part.density = 0
+			part.density = FALSE
 			part.layer = WALL_OBJ_LAYER
 		part.sprite_number = count
 		part.main_part = src
@@ -311,8 +311,8 @@ var/const/GRAV_NEEDS_WRENCH = 3
 	src.updateUsrDialog()
 
 /obj/machinery/gravity_generator/main/proc/grav_on()
-	if(!maps_data.station_levels.len)
-		message_admins("maps_data.station_levels is blank. Gravgen isn't properly established.")
+	if(!GLOB.maps_data.station_levels.len)
+		message_admins("GLOB.maps_data.station_levels is blank. Gravgen isn't properly established.")
 		return
 
 	gravity_is_on = 1
@@ -323,8 +323,8 @@ var/const/GRAV_NEEDS_WRENCH = 3
 	message_admins("The gravity generator was brought fully online. (<A HREF='?_src_=holder;adminplayerobservecoodjump=1;X=[x];Y=[y];Z=[z]'>[area.name]</a>)")
 
 /obj/machinery/gravity_generator/main/proc/grav_off()
-	if(!maps_data.station_levels.len)
-		message_admins("maps_data.station_levels is blank. Gravgen isn't properly established.")
+	if(!GLOB.maps_data.station_levels.len)
+		message_admins("GLOB.maps_data.station_levels is blank. Gravgen isn't properly established.")
 		return
 
 	gravity_is_on = 0

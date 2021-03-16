@@ -1,35 +1,36 @@
 /obj/item/weapon/melee/energy
-	var/active = 0
-	var/active_force
-	var/active_throwforce
-	var/active_w_class
-	sharp = 0
-	edge = 0
+	sharp = FALSE
+	edge = FALSE
 	armor_penetration = ARMOR_PEN_HALF
 	flags = NOBLOODY
 	structure_damage_factor = STRUCTURE_DAMAGE_BREACHING
 	heat = 3800
 	embed_mult = 0 //No physical matter to catch onto things
+	bad_type = /obj/item/weapon/melee/energy
+	var/active = 0
+	var/active_force
+	var/active_throwforce
+	var/active_w_class
 
 /obj/item/weapon/melee/energy/is_hot()
 	if (active)
 		return heat
 
 /obj/item/weapon/melee/energy/proc/activate(mob/living/user)
-	anchored = 1
+	anchored = TRUE
 	if(active)
 		return
 	active = 1
 	force = active_force
 	throwforce = active_throwforce
-	sharp = 1
-	edge = 1
+	sharp = TRUE
+	edge = TRUE
 	w_class = active_w_class
 	playsound(user, 'sound/weapons/saberon.ogg', 50, 1)
 	update_wear_icon()
 
 /obj/item/weapon/melee/energy/proc/deactivate(mob/living/user)
-	anchored = 0
+	anchored = FALSE
 	if(!active)
 		return
 	playsound(user, 'sound/weapons/saberoff.ogg', 50, 1)
@@ -70,8 +71,8 @@
 	flags = CONDUCT | NOBLOODY
 	origin_tech = list(TECH_MAGNET = 3, TECH_COMBAT = 4)
 	attack_verb = list("attacked", "chopped", "cleaved", "torn", "cut")
-	sharp = 1
-	edge = 1
+	sharp = TRUE
+	edge = TRUE
 
 /obj/item/weapon/melee/energy/axe/activate(mob/living/user)
 	icon_state = "axe1"
@@ -100,34 +101,36 @@
 	throw_range = 5
 	w_class = ITEM_SIZE_SMALL
 	flags = NOBLOODY
-	origin_tech = list(TECH_MAGNET = 3, TECH_ILLEGAL = 4)
-	sharp = 1
-	edge = 1
+	origin_tech = list(TECH_MAGNET = 3, TECH_COVERT = 4)
+	sharp = TRUE
+	edge = TRUE
 	var/blade_color
 
 /obj/item/weapon/melee/energy/sword/dropped(var/mob/user)
 	..()
 	deactivate(user)
 
-/obj/item/weapon/melee/energy/sword/New()
-	blade_color = pick("red","blue","green","purple")
+/obj/item/weapon/melee/energy/sword/Initialize(mapload)
+	. = ..()
+	if(!blade_color)
+		blade_color = pick("red","blue","green","purple")
 
-/obj/item/weapon/melee/energy/sword/green/New()
+/obj/item/weapon/melee/energy/sword/green
 	blade_color = "green"
 
-/obj/item/weapon/melee/energy/sword/red/New()
+/obj/item/weapon/melee/energy/sword/red
 	blade_color = "red"
 
-/obj/item/weapon/melee/energy/sword/blue/New()
+/obj/item/weapon/melee/energy/sword/blue
 	blade_color = "blue"
 
-/obj/item/weapon/melee/energy/sword/purple/New()
+/obj/item/weapon/melee/energy/sword/purple
 	blade_color = "purple"
 
-/obj/item/weapon/melee/energy/sword/pirate/New()
+/obj/item/weapon/melee/energy/sword/pirate
 	blade_color = "cutlass"
-	
-/obj/item/weapon/melee/energy/sword/sabre/New()
+
+/obj/item/weapon/melee/energy/sword/sabre
 	blade_color = "green"
 
 /obj/item/weapon/melee/energy/sword/activate(mob/living/user)
@@ -181,9 +184,9 @@
 	icon_state = "blade"
 	force = WEAPON_FORCE_ROBUST //Normal attacks deal very high damage - about the same as wielded fire axe
 	armor_penetration = 100
-	sharp = 1
-	edge = 1
-	anchored = 1    // Never spawned outside of inventory, should be fine.
+	sharp = TRUE
+	edge = TRUE
+	anchored = TRUE    // Never spawned outside of inventory, should be fine.
 	throwforce = 1  //Throwing or dropping the item deletes it.
 	throw_speed = 1
 	throw_range = 1
@@ -192,14 +195,16 @@
 	attack_verb = list("attacked", "slashed", "stabbed", "sliced", "torn", "ripped", "diced", "cut")
 	var/mob/living/creator
 	var/datum/effect/effect/system/spark_spread/spark_system
+	var/cleanup = TRUE	// Should the blade despawn moments after being discarded by the summoner?
+	var/init_procees = TRUE
 
-/obj/item/weapon/melee/energy/blade/New()
-
-	spark_system = new /datum/effect/effect/system/spark_spread()
-	spark_system.set_up(5, 0, src)
-	spark_system.attach(src)
-
-	START_PROCESSING(SSobj, src)
+/obj/item/weapon/melee/energy/blade/Initialize(mapload)
+	. = ..()
+	if(init_procees)
+		spark_system = new /datum/effect/effect/system/spark_spread()
+		spark_system.set_up(5, 0, src)
+		spark_system.attach(src)
+		START_PROCESSING(SSobj, src)
 
 /obj/item/weapon/melee/energy/blade/Destroy()
 	STOP_PROCESSING(SSobj, src)
@@ -207,10 +212,12 @@
 
 /obj/item/weapon/melee/energy/blade/attack_self(mob/user as mob)
 	user.drop_from_inventory(src)
-	spawn(1) if(src) qdel(src)
+	if(cleanup)
+		spawn(1) if(src) qdel(src)
 
 /obj/item/weapon/melee/energy/blade/dropped()
-	spawn(1) if(src) qdel(src)
+	if(cleanup)
+		spawn(1) if(src) qdel(src)
 
 /obj/item/weapon/melee/energy/blade/Process()
 	if(!creator || loc != creator || (creator.l_hand != src && creator.r_hand != src))
@@ -225,4 +232,11 @@
 			host.pinned -= src
 			host.embedded -= src
 			host.drop_from_inventory(src)
-		spawn(1) if(src) qdel(src)
+		if(cleanup)
+			spawn(1) if(src) qdel(src)
+
+/obj/item/weapon/melee/energy/blade/organ_module //just to make sure that blade doesnt delet itself
+	cleanup = FALSE
+	init_procees = FALSE
+
+/obj/item/weapon/melee/energy/blade/organ_module/attack_self(mob/user)

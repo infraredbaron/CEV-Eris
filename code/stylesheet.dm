@@ -86,13 +86,14 @@ h1.alert, h2.alert		{color: #000000;}
 
 .alien					{color: #543354;}
 .monkey					{color: #22228B;}
-.changeling				{color: #800080;}
 .rough					{font-family: Trebuchet MS, cursive, sans-serif;}
 .say_quote				{font-family: Georgia, Verdana, sans-serif;}
 .russian				{color: #635d17}
 .serbian				{color: #Ad6f1d}
 .jive					{color: #666666}
 .german					{color: #001FFF}
+.neohongo               {color: #993399}
+.latin                  {color: #deb63d}
 
 .interface				{color: #330033;}
 

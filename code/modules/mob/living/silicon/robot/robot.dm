@@ -198,7 +198,7 @@
 	if(drain_check)
 		return TRUE
 
-	if(!cell || cell.empty())
+	if(!cell || cell.is_empty())
 		return FALSE
 
 	// Actual amount to drain from cell, using CELLRATE
@@ -258,7 +258,7 @@
 		return
 	var/list/modules = list()
 	modules.Add(robot_modules) //This is a global list in robot_modules.dm
-	var/decl/security_state/security_state = decls_repository.get_decl(maps_data.security_state)
+	var/decl/security_state/security_state = decls_repository.get_decl(GLOB.maps_data.security_state)
 	if((crisis && security_state.current_security_level_is_same_or_higher_than(security_state.high_security_level)) || crisis_override) //Leaving this in until it's balanced appropriately.
 		to_chat(src, SPAN_DANGER("Crisis mode active. Combat module available."))
 		modules+="Combat"
@@ -1051,7 +1051,7 @@
 		return FALSE
 
 	// Power cell is empty.
-	if(cell.empty())
+	if(cell.is_empty())
 		return FALSE
 
 	var/power_use = (amount * CYBORG_POWER_USAGE_MULTIPLIER) / power_efficiency

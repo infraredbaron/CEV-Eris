@@ -5,12 +5,12 @@
 	var/volume = 0
 
 	layer = GAS_PIPE_HIDDEN_LAYER
-	use_power = 0
+	use_power = NO_POWER_USE
 
 	var/alert_pressure = 80*ONE_ATMOSPHERE
 		//minimum pressure before check_pressure(...) should be called
 
-	can_buckle = 1
+	can_buckle = TRUE
 	buckle_require_restraints = 1
 	buckle_lying = -1
 
@@ -97,6 +97,7 @@
 				SPAN_NOTICE("\The [user] unfastens \the [src]."), \
 				SPAN_NOTICE("You have unfastened \the [src]."), \
 				"You hear a ratchet.")
+			investigate_log("was unfastened by [key_name(user)]", "atmos")
 			new /obj/item/pipe(loc, make_from=src)
 			for (var/obj/machinery/meter/meter in T)
 				if (meter.target == src)
@@ -1046,7 +1047,7 @@
 	level = BELOW_PLATING_LEVEL
 	dir = SOUTH
 	initialize_directions = SOUTH
-	density = 1
+	density = TRUE
 	layer = ABOVE_WINDOW_LAYER
 
 /obj/machinery/atmospherics/pipe/tank/New()

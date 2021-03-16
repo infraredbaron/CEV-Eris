@@ -11,9 +11,9 @@ var/global/list/obj/item/device/pda/PDAs = list()
 	item_state = "electronic"
 	w_class = ITEM_SIZE_SMALL
 	slot_flags = SLOT_ID | SLOT_BELT
-
+	spawn_blacklisted = TRUE
 	//Main variables
-	var/owner = null
+	var/owner
 	var/default_cartridge = 0 // Access level defined by cartridge
 	var/obj/item/weapon/cartridge/cartridge = null //current cartridge
 	var/mode = 0 //Controls what menu the PDA will display. 0 is hub; the rest are either built in or based on cartridge.
@@ -1195,8 +1195,8 @@ var/global/list/obj/item/device/pda/PDAs = list()
 						), 1)
 				user.show_message(SPAN_NOTICE("    Key: Suffocation/Toxin/Burns/Brute"), 1)
 				user.show_message(SPAN_NOTICE("    Body Temperature: [C.bodytemperature-T0C]&deg;C ([C.bodytemperature*1.8-459.67]&deg;F)"), 1)
-				if(C.tod && (C.stat == DEAD || (C.status_flags & FAKEDEATH)))
-					user.show_message(SPAN_NOTICE("    Time of Death: [C.tod]"))
+				if(C.timeofdeath && (C.stat == DEAD || (C.status_flags & FAKEDEATH)))
+					user.show_message(SPAN_NOTICE("    Time of Death: [worldtime2stationtime(C.timeofdeath)]"))
 				if(ishuman(C))
 					var/mob/living/carbon/human/H = C
 					var/list/damaged = H.get_damaged_organs(1,1)

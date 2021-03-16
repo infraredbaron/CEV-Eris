@@ -2,12 +2,18 @@
 	name = "eyeballs"
 	icon_state = "eyes"
 	gender = PLURAL
-	organ_tag = BP_EYES
-	parent_organ = BP_HEAD
+	organ_efficiency = list(OP_EYES = 100)
+	parent_organ_base = BP_HEAD
 	price_tag = 100
+	blood_req = 2
+	max_blood_storage = 10
+	oxygen_req = 1
+	nutriment_req = 1
 	var/eyes_color = "#000000"
 	var/robo_color = "#000000"
 	var/cache_key = BP_EYES
+	var/list/colourmatrix = null
+	var/list/colourblind_matrix = MATRIX_GREYSCALE //Special colourblindness parameters. By default, it's black-and-white.
 
 /obj/item/organ/internal/eyes/proc/get_icon()
 	var/icon/eyes_icon = new/icon('icons/mob/human_face.dmi', "eye_l")
@@ -24,28 +30,24 @@
 	if(eyes_color)
 		owner.eyes_color = eyes_color
 		owner.update_eyes()
+	owner.update_client_colour()
 
 /obj/item/organ/internal/eyes/proc/update_colour()
 	if(!owner)
 		return
 	eyes_color = owner.eyes_color
 
-/obj/item/organ/internal/eyes/take_damage(amount, var/silent=0)
+/obj/item/organ/internal/eyes/take_damage(amount, silent=0)
 	var/oldbroken = is_broken()
 	..()
 	if(is_broken() && !oldbroken && owner && !owner.stat)
 		to_chat(owner, SPAN_DANGER("You go blind!"))
 
-/obj/item/organ/internal/eyes/Process() //Eye damage replaces the old eye_stat var.
-	..()
-	if(!owner)
-		return
-	if(is_bruised())
-		owner.eye_blurry = 20
-	if(is_broken())
-		owner.eye_blind = 20
-
-
+/obj/item/organ/internal/eyes/proc/get_colourmatrix() //Returns a special colour matrix if the eyes are organic and the mob is colourblind, otherwise it uses the current one.
+	if(!(BP_IS_ROBOTIC(src)) && owner.stats.getPerk(PERK_OBORIN_SYNDROME) && !owner.is_dead())
+		return colourblind_matrix
+	else
+		return colourmatrix
 
 //Subtypes
 /obj/item/organ/internal/eyes/oneeye
@@ -78,4 +80,3 @@
 	eyes_icon.Blend(right_eye)
 
 	return eyes_icon
-

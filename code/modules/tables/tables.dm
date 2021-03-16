@@ -16,8 +16,8 @@ var/list/custom_table_appearance = list(
 	icon = 'icons/obj/tables.dmi'
 	icon_state = "frame"
 	desc = "It's a table, for putting things on. Or standing on, if you really want to."
-	density = 1
-	anchored = 1
+	density = TRUE
+	anchored = TRUE
 	climbable = 1
 	layer = PROJECTILE_HIT_THRESHHOLD_LAYER
 	throwpass = 1
@@ -101,11 +101,11 @@ var/list/custom_table_appearance = list(
 	. = ..()
 	if(health < maxhealth)
 		switch(health / maxhealth)
-			if(0.0 to 0.5)
+			if(0 to 0.5)
 				to_chat(user, SPAN_WARNING("It looks severely damaged!"))
 			if(0.25 to 0.5)
 				to_chat(user, SPAN_WARNING("It looks damaged!"))
-			if(0.5 to 1.0)
+			if(0.5 to 1)
 				to_chat(user, SPAN_NOTICE("It has a few scrapes and dents."))
 
 /obj/structure/table/attackby(obj/item/I, mob/user)

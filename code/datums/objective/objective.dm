@@ -21,7 +21,7 @@ var/global/list/all_objectives_types = null
 	var/human_target = TRUE				//If true, only select human targets
 	var/unique = FALSE					//If true, each antag/faction can have only one instance of this objective
 
-/datum/objective/New(var/datum/antagonist/new_owner, var/datum/mind/_target)
+/datum/objective/New(datum/antagonist/new_owner, datum/mind/_target)
 	if (istype(new_owner))
 		antag = new_owner
 		antag.objectives += src
@@ -68,7 +68,7 @@ var/global/list/all_objectives_types = null
 	return possible_targets
 
 //Checks if a given mind is a valid target to perform objectives on
-/datum/objective/proc/is_valid_target(var/datum/mind/M)
+/datum/objective/proc/is_valid_target(datum/mind/M)
 	if (!M.current)
 		return FALSE //No mob
 
@@ -102,12 +102,12 @@ var/global/list/all_objectives_types = null
 		return TRUE
 	return FALSE
 
-/datum/objective/proc/set_target(var/datum/mind/new_target)
+/datum/objective/proc/set_target(datum/mind/new_target)
 	if(new_target)
 		target = new_target
 		update_explanation()
 
-/datum/objective/proc/select_human_target(var/mob/user)
+/datum/objective/proc/select_human_target(mob/user)
 	var/list/possible_targets = get_targets_list()
 	if(!possible_targets || !possible_targets.len)
 		to_chat(user, SPAN_WARNING("Sorry! No possible targets found!"))
@@ -116,7 +116,6 @@ var/global/list/all_objectives_types = null
 	if(M)
 		target = M
 		update_explanation()
-
 
 /datum/objective/proc/update_explanation()
 
@@ -161,3 +160,11 @@ var/global/list/all_objectives_types = null
 		return antag.get_targets()
 	else
 		return list()
+
+/datum/objective/proc/time2minutes(unit)
+	var/time = unit/(1 MINUTES)
+	return time
+
+/datum/objective/proc/time2hours(unit)
+	var/time = unit/(60 MINUTES)
+	return time

@@ -237,8 +237,6 @@
 			M.change_mob_type( /mob/observer/ghost , null, null, delmob )
 		if("angel")
 			M.change_mob_type( /mob/observer/eye/angel , null, null, delmob )
-		if("larva")
-			M.change_mob_type( /mob/living/carbon/alien/larva , null, null, delmob )
 		if("human")
 			M.change_mob_type( /mob/living/carbon/human , null, null, delmob, input["species"])
 		if("slime")
@@ -567,7 +565,8 @@
 
 
 /datum/admin_topic/boot2
-	keyword = "boot"
+	keyword = "boot2"
+	require_perms = list(R_MOD|R_ADMIN)
 
 /datum/admin_topic/boot2/Run(list/input)
 	var/mob/M = locate(input["boot2"])
@@ -616,6 +615,9 @@
 
 	if(M.client && M.client.holder)
 		return	//admins cannot be banned. Even if they could, the ban doesn't affect them anyway
+	var/delayed = 0
+	if(alert("Delayed Ban?", "Ban after roundend. Work with DB only.", "Yes", "No") == "Yes")
+		delayed = 1
 
 	switch(alert("Temporary Ban?",,"Yes","No", "Cancel"))
 		if("Yes")
@@ -630,12 +632,12 @@
 			var/reason = sanitize(input(usr,"Reason?","reason","Griefer") as text|null)
 			if(!reason)
 				return
-			AddBan(M.ckey, M.computer_id, reason, usr.ckey, 1, mins)
+			AddBan(M.ckey, M.computer_id, reason, usr.ckey, 1, mins, delayed_ban = delayed)
 			ban_unban_log_save("[usr.client.ckey] has banned [M.ckey]. - Reason: [reason] - This will be removed in [mins] minutes.")
 			to_chat(M, "\red<BIG><B>You have been banned by [usr.client.ckey].\nReason: [reason].</B></BIG>")
 			to_chat(M, "\red This is a temporary ban, it will be removed in [mins] minutes.")
 
-			source.DB_ban_record(BANTYPE_TEMP, M, mins, reason)
+			source.DB_ban_record(BANTYPE_TEMP, M, mins, reason, delayed_ban = delayed)
 
 			if(config.banappeals)
 				to_chat(M, "\red To try to resolve this matter head to [config.banappeals]")
@@ -644,18 +646,21 @@
 			log_admin("[usr.client.ckey] has banned [M.ckey].\nReason: [reason]\nThis will be removed in [mins] minutes.")
 			message_admins("\blue[usr.client.ckey] has banned [M.ckey].\nReason: [reason]\nThis will be removed in [mins] minutes.")
 
-			del(M.client)
+			if(!delayed)
+				del(M.client)
 			//qdel(M)	// See no reason why to delete mob. Important stuff can be lost. And ban can be lifted before round ends.
 		if("No")
+			var/no_ip = 0
 			var/reason = sanitize(input(usr,"Reason?","reason","Griefer") as text|null)
 			if(!reason)
 				return
 			switch(alert(usr,"IP ban?",,"Yes","No","Cancel"))
 				if("Cancel")	return
 				if("Yes")
-					AddBan(M.ckey, M.computer_id, reason, usr.ckey, 0, 0, M.lastKnownIP)
+					AddBan(M.ckey, M.computer_id, reason, usr.ckey, 0, 0, M.lastKnownIP, delayed_ban = delayed)
 				if("No")
-					AddBan(M.ckey, M.computer_id, reason, usr.ckey, 0, 0)
+					AddBan(M.ckey, M.computer_id, reason, usr.ckey, 0, 0, delayed_ban = delayed)
+					no_ip = 1
 			to_chat(M, "\red<BIG><B>You have been banned by [usr.client.ckey].\nReason: [reason].</B></BIG>")
 			to_chat(M, "\red This is a permanent ban.")
 			if(config.banappeals)
@@ -665,10 +670,11 @@
 			ban_unban_log_save("[usr.client.ckey] has permabanned [M.ckey]. - Reason: [reason] - This is a permanent ban.")
 			log_admin("[usr.client.ckey] has banned [M.ckey].\nReason: [reason]\nThis is a permanent ban.")
 			message_admins("\blue[usr.client.ckey] has banned [M.ckey].\nReason: [reason]\nThis is a permanent ban.")
+			var/banip = no_ip ? null : -1
+			source.DB_ban_record(BANTYPE_PERMA, M, -1, reason, banip, delayed_ban = delayed)
 
-			source.DB_ban_record(BANTYPE_PERMA, M, -1, reason)
-
-			del(M.client)
+			if(!delayed)
+				del(M.client)
 		if("Cancel")
 			return
 
@@ -799,6 +805,29 @@
 	log_admin("[key_name(usr)] forced [key_name(M)] to say: [speech]")
 	message_admins("\blue [key_name_admin(usr)] forced [key_name_admin(M)] to say: [speech]")
 
+/datum/admin_topic/forcesanity
+	keyword = "forcesanity"
+	require_perms = list(R_FUN)
+
+/datum/admin_topic/forcesanity/Run(list/input)
+	var/mob/living/carbon/human/H = locate(input["forcesanity"])
+	if(!ishuman(H))
+		to_chat(usr, "This can only be used on instances of type /human.")
+		return
+
+	var/datum/breakdown/B = input("What breakdown will [key_name(H)] suffer from?", "Sanity Breakdown") as null | anything in subtypesof(/datum/breakdown)
+	if(!B)
+		return
+	B = new B(H.sanity)
+	if(!B.can_occur())
+		to_chat(usr, "[B] could not occur. [key_name(H)] did not meet the right conditions.")
+		qdel(B)
+		return
+	if(B.occur())
+		H.sanity.breakdowns += B
+		to_chat(usr, SPAN_NOTICE("[B] has occurred for [key_name(H)]."))
+		return
+
 
 /datum/admin_topic/revive
 	keyword = "revive"
@@ -810,12 +839,9 @@
 		to_chat(usr, "This can only be used on instances of type /mob/living")
 		return
 
-	if(config.allow_admin_rev)
-		L.revive()
-		message_admins("\red Admin [key_name_admin(usr)] healed / revived [key_name_admin(L)]!", 1)
-		log_admin("[key_name(usr)] healed / Revived [key_name(L)]")
-	else
-		to_chat(usr, "Admin Rejuvinates have been disabled")
+	L.revive()
+	message_admins("\red Admin [key_name_admin(usr)] healed / revived [key_name_admin(L)]!", 1)
+	log_admin("[key_name(usr)] healed / Revived [key_name(L)]")
 
 
 /datum/admin_topic/makeai
@@ -1177,6 +1203,30 @@
 	var/mob/M = locate(input["subtlemessage"])
 	usr.client.cmd_admin_subtle_message(M)
 
+/datum/admin_topic/manup
+	keyword = "manup"
+	require_perms = list(R_MOD|R_ADMIN)
+
+/datum/admin_topic/manup/Run(list/input)
+	var/mob/M = locate(input["manup"])
+	usr.client.man_up(M)
+
+/datum/admin_topic/paralyze
+	keyword = "paralyze"
+	require_perms = list(R_MOD|R_ADMIN)
+
+/datum/admin_topic/paralyze/Run(list/input)
+	var/mob/M = locate(input["paralyze"])
+
+	var/msg
+	if (M.paralysis == 0)
+		M.paralysis = 8000
+		msg = "has paralyzed [key_name(M)]."
+	else
+		M.paralysis = 0
+		msg = "has unparalyzed [key_name(M)]."
+		log_and_message_admins(msg)
+
 /datum/admin_topic/viewlogs
 	keyword = "viewlogs"
 	require_perms = list(R_MOD|R_ADMIN)
@@ -1239,10 +1289,6 @@
 	require_perms = list(R_FUN)
 
 /datum/admin_topic/object_list/Run(list/input)
-	if(!config.allow_admin_spawning)
-		to_chat(usr, "Spawning of items is not allowed.")
-		return
-
 	var/atom/loc = usr.loc
 
 	var/dirty_paths
@@ -1320,7 +1366,7 @@
 						O.set_dir(obj_dir)
 						if(obj_name)
 							O.name = obj_name
-							if(istype(O,/mob))
+							if(ismob(O))
 								var/mob/M = O
 								M.real_name = obj_name
 						if(where == "inhand" && isliving(usr) && istype(O, /obj/item))

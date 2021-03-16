@@ -2,6 +2,7 @@
 	camera_networks = list(NETWORK_MINE)
 
 /obj/item/clothing/head/space/rig/ce
+	light_overlay = "helmet_light_dual"
 	camera_networks = list(NETWORK_ENGINEERING)
 
 /obj/item/clothing/head/space/rig/eva
@@ -52,7 +53,7 @@
 	req_one_access = list()
 
 /obj/item/weapon/rig/industrial/equipped
-
+	rarity_value = 20
 	initial_modules = list(
 		/obj/item/rig_module/device/drill,
 		/obj/item/rig_module/device/orescanner,
@@ -94,6 +95,7 @@
 	req_one_access = list()
 
 /obj/item/weapon/rig/eva/equipped
+	rarity_value = 20
 	initial_modules = list(
 		/obj/item/rig_module/maneuvering_jets,
 		/obj/item/rig_module/device/rcd,
@@ -109,6 +111,7 @@ Advanced Voidsuit: Technomancer Exultant
 	suit_type = "advanced voidsuit"
 	desc = "An advanced voidsuit that protects against hazardous, low pressure environments. Shines with a high polish."
 	icon_state = "ce_rig"
+	rarity_value = 20
 	armor = list(
 		melee = 30,
 		bullet = 30,
@@ -137,14 +140,17 @@ Advanced Voidsuit: Technomancer Exultant
 
 	req_access = list(access_ce)
 	req_one_access = list()
+	spawn_blacklisted = TRUE//antag_item_targets
 
 /obj/item/weapon/rig/ce/equipped
+	rarity_value = 40
 	initial_modules = list(
 		/obj/item/rig_module/ai_container,
 		/obj/item/rig_module/maneuvering_jets,
 		/obj/item/rig_module/device/rcd,
 		/obj/item/rig_module/vision/meson,
-		/obj/item/rig_module/storage
+		/obj/item/rig_module/storage,
+		/obj/item/rig_module/cape/te
 		)
 
 /obj/item/clothing/gloves/rig/ce
@@ -164,6 +170,8 @@ Advanced Voidsuit: Technomancer Exultant
 	suit_type = "hazmat hardsuit"
 	desc = "An Anomalous Material Interaction hardsuit that protects against the strangest energies the universe can throw at it."
 	icon_state = "science_rig"
+	spawn_tags = SPAWN_TAG_RIG_HAZMAT
+	rarity_value = 25
 	armor = list(
 		melee = 30,
 		bullet = 20,
@@ -196,8 +204,8 @@ Advanced Voidsuit: Technomancer Exultant
 	req_one_access = list()
 
 /obj/item/weapon/rig/hazmat/equipped
-
 	req_access = list(access_rd)
+	rarity_value = 40
 
 	initial_modules = list(
 		/obj/item/rig_module/ai_container,
@@ -238,7 +246,7 @@ Advanced Voidsuit: Technomancer Exultant
 /obj/item/weapon/rig/medical/equipped
 	req_access = list()
 	req_one_access = list()
-
+	rarity_value = 20
 	initial_modules = list(
 		/obj/item/rig_module/chem_dispenser/injector,
 		/obj/item/rig_module/maneuvering_jets,

@@ -58,12 +58,12 @@
 		var/area/A = get_area(C)
 		if(!A)
 			continue
-		if(!(A.z in maps_data.station_levels))
+		if(!(A.z in GLOB.maps_data.station_levels))
 			continue
 		if(A.flags & AREA_FLAG_RAD_SHIELDED)
 			continue
 
-		if(istype(C,/mob/living/carbon/human))
+		if(ishuman(C))
 			var/mob/living/carbon/human/H = C
 			H.apply_effect((rand(15,30)),IRRADIATE)
 			if(prob(4))

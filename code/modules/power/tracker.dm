@@ -8,9 +8,9 @@
 	desc = "A solar directional tracker."
 	icon = 'icons/obj/power.dmi'
 	icon_state = "tracker"
-	anchored = 1
-	density = 1
-	use_power = 0
+	anchored = TRUE
+	density = TRUE
+	use_power = NO_POWER_USE
 
 	var/id = 0
 	var/sun_angle = 0		// sun angle as set by SSsun
@@ -43,7 +43,7 @@
 		S = new /obj/item/solar_assembly(src)
 		S.glass_type = /obj/item/stack/material/glass
 		S.tracker = 1
-		S.anchored = 1
+		S.anchored = TRUE
 	S.loc = src
 	update_icon()
 
@@ -72,7 +72,7 @@
 
 // Tracker Electronic
 
-/obj/item/weapon/tracker_electronics
+/obj/item/weapon/electronics/tracker
 
 	name = "tracker electronics"
 	icon = 'icons/obj/doors/door_assembly.dmi'

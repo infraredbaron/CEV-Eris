@@ -3,7 +3,7 @@
 	desc = "This machine repurposes implants, robot components and bionics, reworking their circuitry into the Excelsior implant pattern which allows recruitment."
 	icon = 'icons/obj/machines/excelsior/reconstructor.dmi'
 	icon_state = "idle"
-	circuit = /obj/item/weapon/circuitboard/excelsiorreconstructor
+	circuit = /obj/item/weapon/electronics/circuitboard/excelsiorreconstructor
 	anchored = TRUE
 	density = TRUE
 
@@ -64,7 +64,7 @@
 	if(accepted)
 		working = TRUE
 		start_time = world.time
-
+		
 		flick(image(icon, "closing"), src)
 
 		update_icon()

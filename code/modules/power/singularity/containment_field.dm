@@ -5,10 +5,10 @@
 	desc = "A crackling, humming field of electromagnetic energy. Its kinetic force is more than enough to halt the course of a gravitational singularity, so it's probably not safe for you to touch."
 	icon = 'icons/obj/singularity.dmi'
 	icon_state = "Contain_F"
-	anchored = 1
-	density = 0
+	anchored = TRUE
+	density = FALSE
 	unacidable = 1
-	use_power = 0
+	use_power = NO_POWER_USE
 	light_range = 4
 	layer = ABOVE_OBJ_LAYER
 	flags = PROXMOVE

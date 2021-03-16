@@ -97,7 +97,7 @@
 	desc = "Apply butt."
 	icon = 'icons/obj/furniture.dmi'
 	icon_state = "stool_padded_preview"
-	anchored = 1.0
+	anchored = TRUE
 
 /obj/item/clothing/gloves/boxing/hologlove
 	name = "boxing gloves"
@@ -122,7 +122,7 @@
 		if(W.damtype == BRUTE || W.damtype == BURN)
 			hit(W.force)
 			if(health <= 7)
-				anchored = 0
+				anchored = FALSE
 				update_nearby_icons()
 				step(src, get_dir(user, src))
 		else
@@ -172,7 +172,7 @@
 	return
 
 /obj/machinery/door/window/holowindoor/shatter(var/display_message = 1)
-	src.density = 0
+	src.density = FALSE
 	playsound(src, "shatter", 70, 1)
 	if(display_message)
 		visible_message("[src] fades away as it shatters!")
@@ -189,11 +189,12 @@
 /obj/item/weapon/holo
 	damtype = HALLOSS
 	no_attack_log = 1
+	bad_type = /obj/item/weapon/holo
 
 /obj/item/weapon/holo/esword
 	desc = "May the force be within you. Sorta."
 	icon_state = "sword0"
-	force = 3.0
+	force = 3
 	throw_speed = 1
 	throw_range = 5
 	throwforce = 0
@@ -203,12 +204,10 @@
 	var/item_color
 
 /obj/item/weapon/holo/esword/green
-	New()
-		item_color = "green"
+	item_color = "green"
 
 /obj/item/weapon/holo/esword/red
-	New()
-		item_color = "red"
+	item_color = "red"
 
 /obj/item/weapon/holo/esword/handle_shield(mob/user, var/damage, atom/damage_source = null, mob/attacker = null, var/def_zone = null, var/attack_text = "the attack")
 	if(active && default_parry_check(user, attacker, damage_source) && prob(50))
@@ -221,8 +220,10 @@
 		return 1
 	return 0
 
-/obj/item/weapon/holo/esword/New()
-	item_color = pick("red","blue","green","purple")
+/obj/item/weapon/holo/esword/Initialize(mapload)
+	. = ..()
+	if(!item_color)
+		item_color = pick("red","blue","green","purple")
 
 /obj/item/weapon/holo/esword/attack_self(mob/living/user as mob)
 	active = !active
@@ -258,8 +259,8 @@
 	desc = "Boom, Shakalaka!"
 	icon = 'icons/obj/basketball.dmi'
 	icon_state = "hoop"
-	anchored = 1
-	density = 1
+	anchored = TRUE
+	density = TRUE
 	throwpass = 1
 
 /obj/structure/holohoop/affect_grab(var/mob/living/user, var/mob/living/target, var/state)
@@ -301,8 +302,8 @@
 	var/area/currentarea = null
 	var/eventstarted = 0
 
-	anchored = 1.0
-	use_power = 1
+	anchored = TRUE
+	use_power = IDLE_POWER_USE
 	idle_power_usage = 2
 	active_power_usage = 6
 	power_channel = ENVIRON

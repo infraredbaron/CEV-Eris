@@ -30,14 +30,14 @@
 /obj/structure/inflatable
 	name = "inflatable"
 	desc = "An inflated membrane. Do not puncture."
-	density = 1
-	anchored = 1
+	density = TRUE
+	anchored = TRUE
 	opacity = 0
 	icon = 'icons/obj/inflatable.dmi'
 	icon_state = "wall"
 
 	var/undeploy_path = null
-	var/health = 50.0
+	var/health = 50
 
 /obj/structure/inflatable/wall
 	name = "inflatable wall"
@@ -66,13 +66,13 @@
 
 /obj/structure/inflatable/ex_act(severity)
 	switch(severity)
-		if(1.0)
+		if(1)
 			qdel(src)
 			return
-		if(2.0)
+		if(2)
 			deflate(1)
 			return
-		if(3.0)
+		if(3)
 			if(prob(50))
 				deflate(1)
 				return
@@ -141,8 +141,8 @@
 
 /obj/structure/inflatable/door //Based on mineral door code
 	name = "inflatable door"
-	density = 1
-	anchored = 1
+	density = TRUE
+	anchored = TRUE
 	opacity = FALSE
 
 	icon_state = "door_closed"
@@ -193,7 +193,7 @@
 	isSwitchingStates = 1
 	flick("door_opening", src)
 	sleep(10)
-	density = 0
+	density = FALSE
 	state = 1
 	update_icon()
 	isSwitchingStates = 0
@@ -202,7 +202,7 @@
 	isSwitchingStates = 1
 	flick("door_closing", src)
 	sleep(10)
-	density = 1
+	density = TRUE
 	state = 0
 	update_icon()
 	isSwitchingStates = 0
@@ -255,13 +255,15 @@
 	w_class = ITEM_SIZE_NORMAL
 	max_storage_space = 28
 	can_hold = list(/obj/item/inflatable)
+	var/init_inflatable_count = 4
 
 	New()
 		..()
-		new /obj/item/inflatable/door(src)
-		new /obj/item/inflatable/door(src)
-		new /obj/item/inflatable/door(src)
-		new /obj/item/inflatable/wall(src)
-		new /obj/item/inflatable/wall(src)
-		new /obj/item/inflatable/wall(src)
-		new /obj/item/inflatable/wall(src)
+		while(init_inflatable_count)
+			new /obj/item/inflatable/door(src)
+			new /obj/item/inflatable/wall(src)
+			init_inflatable_count -= 1
+		init_inflatable_count = initial(init_inflatable_count)
+
+/obj/item/weapon/storage/briefcase/inflatable/empty/init_inflatable_count = 0
+

@@ -3,10 +3,10 @@
 
 	icon = 'icons/obj/pipes.dmi'
 	icon_state = "vent-db"
-	density = 0
-	anchored=1
+	density = FALSE
+	anchored = TRUE
 
-	var/on = 0
+	var/on = FALSE
 	var/volume_rate = 800
 
 /obj/machinery/zvent/process()

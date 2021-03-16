@@ -3,10 +3,10 @@
 
 	icon = 'icons/obj/atmos.dmi'
 	icon_state = "pscrubber:0"
-	density = 1
+	density = TRUE
 	w_class = ITEM_SIZE_NORMAL
 
-	var/on = 0
+	var/on = FALSE
 	var/volume_rate = 800
 
 	volume = 750
@@ -145,11 +145,11 @@
 /obj/machinery/portable_atmospherics/powered/scrubber/huge
 	name = "Huge Air Scrubber"
 	icon_state = "scrubber:0"
-	anchored = 1
+	anchored = TRUE
 	volume = 50000
 	volume_rate = 5000
 
-	use_power = 1
+	use_power = IDLE_POWER_USE
 	idle_power_usage = 500		//internal circuitry, friction losses and stuff
 	active_power_usage = 100000	//100 kW ~ 135 HP
 

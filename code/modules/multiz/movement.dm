@@ -120,7 +120,7 @@
 	if(allow_spacemove())
 		return TRUE
 
-	for(var/turf/simulated/T in trange(1,src))
+	for(var/turf/simulated/T in RANGE_TURFS(1,src))
 		if(T.density)
 			if(check_shoegrip(FALSE))
 				return TRUE
@@ -132,7 +132,7 @@
 	if(allow_spacemove()) //Checks for active jetpack
 		return TRUE
 
-	for(var/turf/simulated/T in trange(1,src)) //Robots get "magboots"
+	for(var/turf/simulated/T in RANGE_TURFS(1,src)) //Robots get "magboots"
 		if(T.density)
 			return TRUE
 
@@ -195,6 +195,9 @@
 	if(anchored)
 		return FALSE
 
+	if(throwing > 0)
+		return FALSE
+
 	// The var/climbers API is implemented here.
 	if (LAZYLEN(dest.climbers) && (src in dest.climbers))
 		return FALSE
@@ -249,6 +252,8 @@
 				moveWithMob += G.affecting
 		if(moveWithMob.len)
 			var/turf/pull_target = istop ? GetBelow(ES) : GetAbove(ES)
+			if(target)
+				pull_target = get_turf(target)
 			if(!pull_target)
 				pull_target = get_turf(M)
 			for(var/Elem in moveWithMob)

@@ -4,8 +4,8 @@
 	icon_state = "motion0"
 	plane = FLOOR_PLANE
 	layer = PROJECTILE_HIT_THRESHHOLD_LAYER
-	anchored = 1.0
-	use_power = 1
+	anchored = TRUE
+	use_power = IDLE_POWER_USE
 	idle_power_usage = 10
 	var/uses = 20
 	var/disabled = 1

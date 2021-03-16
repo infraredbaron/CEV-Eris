@@ -13,9 +13,9 @@
 	icon = 'icons/obj/status_display.dmi'
 	icon_state = "frame"
 	name = "status display"
-	anchored = 1
-	density = 0
-	use_power = 1
+	anchored = TRUE
+	density = FALSE
+	use_power = IDLE_POWER_USE
 	idle_power_usage = 10
 	var/mode = 1	// 0 = Blank
 					// 1 = Shuttle timer

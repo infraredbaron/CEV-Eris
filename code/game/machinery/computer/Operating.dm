@@ -2,13 +2,13 @@
 
 /obj/machinery/computer/operating
 	name = "patient monitoring console"
-	density = 1
-	anchored = 1.0
+	density = TRUE
+	anchored = TRUE
 	icon_keyboard = "med_key"
 	icon_screen = "crew"
-	circuit = /obj/item/weapon/circuitboard/operating
-	var/mob/living/carbon/human/victim = null
-	var/obj/machinery/optable/table = null
+	circuit = /obj/item/weapon/electronics/circuitboard/operating
+	var/mob/living/carbon/human/victim
+	var/obj/machinery/optable/table
 
 /obj/machinery/computer/operating/New()
 	..()

@@ -28,17 +28,16 @@
 #define LIST_NUMERIC_SET(L, I, V) if(!L) { L = list(); } if (L.len < I) { L.len = I; } L[I] = V
 
 // Handy defines to lookup the pixel offsets for this Z-level.  Cache these if you use them in a loop tho.
-#define HOLOMAP_PIXEL_OFFSET_X(zLevel) ((maps_data.holomap_offset_x.len >= zLevel) ? maps_data.holomap_offset_x[zLevel] : 0)
-#define HOLOMAP_PIXEL_OFFSET_Y(zLevel) ((maps_data.holomap_offset_y.len >= zLevel) ? maps_data.holomap_offset_y[zLevel] : 0)
-#define HOLOMAP_LEGEND_X(zLevel) ((maps_data.holomap_legend_x.len >= zLevel) ? maps_data.holomap_legend_x[zLevel] : 96)
-#define HOLOMAP_LEGEND_Y(zLevel) ((maps_data.holomap_legend_y.len >= zLevel) ? maps_data.holomap_legend_y[zLevel] : 96)
+#define HOLOMAP_PIXEL_OFFSET_X(zLevel) ((GLOB.maps_data.holomap_offset_x.len >= zLevel) ? GLOB.maps_data.holomap_offset_x[zLevel] : 0)
+#define HOLOMAP_PIXEL_OFFSET_Y(zLevel) ((GLOB.maps_data.holomap_offset_y.len >= zLevel) ? GLOB.maps_data.holomap_offset_y[zLevel] : 0)
+#define HOLOMAP_LEGEND_X(zLevel) ((GLOB.maps_data.holomap_legend_x.len >= zLevel) ? GLOB.maps_data.holomap_legend_x[zLevel] : 96)
+#define HOLOMAP_LEGEND_Y(zLevel) ((GLOB.maps_data.holomap_legend_y.len >= zLevel) ? GLOB.maps_data.holomap_legend_y[zLevel] : 96)
 
 // For making the 5-in-1  Eris holomap, we calculate some offsets
 #define ERIS_MAP_SIZE 135 // Width and height of compiled in ERIS z levels.
 #define ERIS_HOLOMAP_CENTER_GUTTER 40 // 40px central gutter between columns
-#define ERIS_HOLOMAP_MARGIN_X ((HOLOMAP_ICON_SIZE - (2*ERIS_MAP_SIZE) - ERIS_HOLOMAP_CENTER_GUTTER) / 3)
-#define ERIS_HOLOMAP_MARGIN_Y ((HOLOMAP_ICON_SIZE - (3*ERIS_MAP_SIZE)) / 10)
-
+#define ERIS_HOLOMAP_MARGIN_X(map_size) ((HOLOMAP_ICON_SIZE - (2*map_size) - ERIS_HOLOMAP_CENTER_GUTTER) / 3)
+#define ERIS_HOLOMAP_MARGIN_Y(map_size, max_holo_per_colum, cap) (cap ? ((HOLOMAP_ICON_SIZE - (max_holo_per_colum*map_size))/(max_holo_per_colum+4.5) < cap ? ((max_holo_per_colum*map_size))/(max_holo_per_colum+4.5) : cap) : ((HOLOMAP_ICON_SIZE - (max_holo_per_colum*map_size))/(max_holo_per_colum+4.5)))
 #define HOLOMAP_EXTRA_STATIONMAP			"stationmapformatted"
 #define HOLOMAP_EXTRA_STATIONMAPAREAS		"stationareas"
 #define HOLOMAP_EXTRA_STATIONMAPSMALL		"stationmapsmall"

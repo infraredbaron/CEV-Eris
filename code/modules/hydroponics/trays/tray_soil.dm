@@ -1,8 +1,8 @@
 /obj/machinery/portable_atmospherics/hydroponics/soil
 	name = "soil"
 	icon_state = "soil"
-	density = 0
-	use_power = 0
+	density = FALSE
+	use_power = NO_POWER_USE
 	mechanical = 0
 	tray_light = 0
 

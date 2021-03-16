@@ -29,6 +29,11 @@ Procs:
 **	Includes all the helper procs and basic tech processing.  **
 ***************************************************************/
 
+/datum/research/proc/adjust_research_points(value)
+	if(value > 0)
+		GLOB.research_point_gained += value
+	research_points += value
+
 /datum/research								//Holder for all the existing, archived, and known tech. Individual to console.
 	var/list/known_designs = list()			//List of available designs (at base reliability).
 	var/list/design_categories_protolathe = list()
@@ -82,7 +87,7 @@ Procs:
 	var/datum/tech/tree = locate(T.tech_type) in researched_tech
 	researched_tech[tree] += T
 	if(!force)
-		research_points -= T.cost
+		adjust_research_points(-T.cost)
 
 	if(initial) // Initial technologies don't add levels
 		tree.max_level -= 1
@@ -189,7 +194,7 @@ Procs:
 	if(istype(file, /datum/computer_file/binary/research_points))
 		var/datum/computer_file/binary/research_points/research_points_file = file
 		known_research_file_ids += research_points_file.research_id
-		research_points += research_points_file.size * 1000
+		adjust_research_points(research_points_file.size * 1000)
 		return TRUE
 
 	return FALSE
@@ -242,13 +247,13 @@ Procs:
 	shortname = "Robotics"
 	desc = "Research into the exosuits"
 
-/datum/tech/illegal
-	name = "Illegal Technologies Research"
-	shortname = "Illegal Tech"
-	desc = "The study of technologies that violate standard Nanotrasen regulations."
+/datum/tech/covert
+	name = "Covert Technologies Research"
+	shortname = "Covert Tech"
+	desc = "The study of technologies that violate standard regulations."
 	rare = 3
 	shown = FALSE
-	item_tech_req = TECH_ILLEGAL // research any traitor item and this tech will show up
+	item_tech_req = TECH_COVERT // research any traitor item and this tech will show up
 
 /datum/technology
 	var/name = "name"

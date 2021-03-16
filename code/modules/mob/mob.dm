@@ -2,6 +2,7 @@
 	STOP_PROCESSING(SSmobs, src)
 	GLOB.dead_mob_list -= src
 	GLOB.living_mob_list -= src
+	GLOB.mob_list -= src
 	unset_machine()
 	qdel(hud_used)
 	if(client)
@@ -31,6 +32,7 @@
 		GLOB.dead_mob_list += src
 	else
 		GLOB.living_mob_list += src
+	GLOB.mob_list += src
 	move_intent = decls_repository.get_decl(move_intent)
 	. = ..()
 
@@ -500,7 +502,7 @@
 	if(href_list["flavor_more"])
 		if(src in view(usr))
 			var/dat = {"
-				<html><head><title>[name]</title></head>
+				<html><meta charset=\"utf-8\"><head><title>[name]</title></head>
 				<body><tt>[replacetext(flavor_text, "\n", "<br>")]</tt></body>
 				</html>
 			"}
@@ -714,14 +716,14 @@ All Canmove setting in this proc is temporary. This var should not be set from h
 		lying = 0
 		canmove = TRUE //TODO: Remove this
 	else if(buckled)
-		anchored = 1
+		anchored = TRUE
 		if(istype(buckled))
 			if(buckled.buckle_lying == -1)
 				lying = incapacitated(INCAPACITATION_KNOCKDOWN)
 			else
 				lying = buckled.buckle_lying
 			if(buckled.buckle_movable)
-				anchored = 0
+				anchored = FALSE
 		canmove = FALSE //TODO: Remove this
 	else
 		lying = incapacitated(INCAPACITATION_KNOCKDOWN)
@@ -994,7 +996,7 @@ mob/proc/yank_out_object()
 		if(O == selection)
 			pinned -= O
 		if(!pinned.len)
-			anchored = 0
+			anchored = FALSE
 	return 1
 
 /mob/living/proc/handle_statuses()
@@ -1004,6 +1006,7 @@ mob/proc/yank_out_object()
 	handle_silent()
 	handle_drugged()
 	handle_slurring()
+	handle_slowdown()
 
 /mob/living/proc/handle_stunned()
 	if(stunned)
@@ -1039,6 +1042,11 @@ mob/proc/yank_out_object()
 	if(paralysis)
 		AdjustParalysis(-1)
 	return paralysis
+
+/mob/living/proc/handle_slowdown()
+	if(slowdown)
+		slowdown = max(slowdown-1, 0)
+	return slowdown
 
 //Check for brain worms in head.
 /mob/proc/has_brain_worms()
@@ -1274,3 +1282,6 @@ mob/proc/yank_out_object()
 /mob/proc/set_stat(var/new_stat)
 	. = stat != new_stat
 	stat = new_stat
+
+/mob/proc/ssd_check()
+	return !client && !teleop

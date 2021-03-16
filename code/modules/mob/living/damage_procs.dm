@@ -8,7 +8,7 @@
 	Returns
 	standard 0 if fail
 */
-/mob/living/proc/apply_damage(var/damage = 0,var/damagetype = BRUTE, var/def_zone = null, var/sharp = 0, var/edge = 0, var/used_weapon = null)
+/mob/living/proc/apply_damage(var/damage = 0,var/damagetype = BRUTE, var/def_zone = null, var/sharp = FALSE, var/edge = FALSE, var/used_weapon = null)
 	activate_ai()
 	switch(damagetype)
 
@@ -69,7 +69,7 @@
 		if(PARALYZE)
 			Paralyse(effect)
 		if(AGONY)
-			halloss += effect // Useful for objects that cause "subdual" damage. PAIN!
+			adjustHalLoss(effect) // Useful for objects that cause "subdual" damage. PAIN!
 		if(IRRADIATE)
 			var/rad_protection = check_protection ? getarmor(null, ARMOR_RAD) / 100 : 0
 			radiation += max((1 - rad_protection) * effect, 0)//Rads auto check armor

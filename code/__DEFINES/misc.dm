@@ -37,6 +37,7 @@
 #define SPECIALROLE_HUD 7 // AntagHUD image.
 #define  STATUS_HUD_OOC 8 // STATUS_HUD without virus DB check for someone being ill.
 #define        LIFE_HUD 9 // STATUS_HUD that only reports dead or alive
+#define   EXCELSIOR_HUD 10 // Used by excelsior to see who else is excel
 
 // These define the time taken for the shuttle to get to the space station, and the time before it leaves again.
 
@@ -171,8 +172,8 @@
 #define ANNOUNSER_NAME "CEV Eris System Announcer"
 
 
-#define LIST_OF_CONSONANT list("b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z", "á", "â", "ã", "ä", "æ", "ç", "é", "ê", "ë", "ì", "í", "ï", "ð", "ñ", "ò", "ô", "õ", "ö", "÷", "ø", "ù")
-
+#define LIST_OF_CONSONANT list("a", "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z", "á", "â", "ã", "ä", "æ", "ç", "é", "ê", "ë", "ì", "í", "ï", "ð", "ñ", "ò", "ô", "õ", "ö", "÷", "ø", "ù")
+#define EN_ALPHABET list("a", "b", "c", "d", "f", "g", "h", "j", "k", "l", "m", "n", "p", "q", "r", "s", "t", "v", "w", "x", "y", "z")
 //Multi-z
 #define FALL_GIB_DAMAGE 999
 
@@ -184,6 +185,8 @@
 
 //Cruciform
 #define CRUCIFORM_COMMON /datum/core_module/rituals/cruciform/base
+#define CRUCIFORM_AGROLYTE /datum/core_module/rituals/cruciform/agrolyte
+#define CRUCIFORM_CUSTODIAN /datum/core_module/rituals/cruciform/custodian
 #define CRUCIFORM_PRIEST /datum/core_module/rituals/cruciform/priest
 #define CRUCIFORM_INQUISITOR /datum/core_module/rituals/cruciform/inquisitor
 #define CRUCIFORM_CRUSADER /datum/core_module/rituals/cruciform/crusader
@@ -194,6 +197,13 @@
 #define CRUCIFORM_OBEY /datum/core_module/cruciform/obey
 #define CRUCIFORM_PRIEST_CONVERT /datum/core_module/activatable/cruciform/priest_convert
 #define CRUCIFORM_OBEY_ACTIVATOR /datum/core_module/activatable/cruciform/obey_activator
+
+#define CUPGRADE_NATURES_BLESSING /obj/item/weapon/cruciform_upgrade/natures_blessing
+#define CUPGRADE_FAITHS_SHIELD /obj/item/weapon/cruciform_upgrade/faiths_shield
+#define CUPGRADE_CLEANSING_PSESENCE /obj/item/weapon/cruciform_upgrade/cleansing_presence
+#define CUPGRADE_MARTYR_GIFT /obj/item/weapon/cruciform_upgrade/martyr_gift
+#define CUPGRADE_WRATH_OF_GOD /obj/item/weapon/cruciform_upgrade/wrath_of_god
+#define CUPGRADE_SPEED_OF_THE_CHOSEN /obj/item/weapon/cruciform_upgrade/speed_of_the_chosen
 
 //https://secure.byond.com/docs/ref/info.html#/atom/var/mouse_opacity
 #define MOUSE_OPACITY_TRANSPARENT 0
@@ -252,9 +262,9 @@
 
 #define any2ref(x) "\ref[x]"
 
-#define MAP_IMAGE_PATH "nano/images/[maps_data.path]/"
+#define MAP_IMAGE_PATH "nano/images/[GLOB.maps_data.path]/"
 
-#define map_image_file_name(z_level) "[maps_data.path]-[z_level].png"
+#define map_image_file_name(z_level) "[GLOB.maps_data.path]-[z_level].png"
 
 // Spawns multiple objects of the same type
 #define cast_new(type, num, args...) if((num) == 1) { new type(args) } else { for(var/i in 1 to num) { new type(args) } }
@@ -283,8 +293,16 @@
 
 #define get_area(A) (get_step(A, 0)?.loc)
 
-
-//Misc text define. Does 4 spaces. Used as a makeshift tabulator.
-#define FOURSPACES "&nbsp;&nbsp;&nbsp;&nbsp;"
-
 #define NEWorINITIAL(variable, newvalue) variable = newvalue ? newvalue : initial(variable)
+
+//Matricies
+#define MATRIX_GREYSCALE list(0.33, 0.33, 0.33,\
+                              0.33, 0.33, 0.33,\
+                              0.33, 0.33, 0.33)
+
+//different types of atom colorations
+#define ADMIN_COLOUR_PRIORITY 		1 //only used by rare effects like greentext coloring mobs and when admins varedit color
+#define TEMPORARY_COLOUR_PRIORITY 	2 //e.g. purple effect of the revenant on a mob, black effect when mob electrocuted
+#define WASHABLE_COLOUR_PRIORITY 	3 //color splashed onto an atom (e.g. paint on turf)
+#define FIXED_COLOUR_PRIORITY 		4 //color inherent to the atom (e.g. blob color)
+#define COLOUR_PRIORITY_AMOUNT      4 //how many priority levels there are.

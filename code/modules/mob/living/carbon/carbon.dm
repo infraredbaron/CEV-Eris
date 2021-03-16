@@ -8,8 +8,7 @@
 	..()
 
 /mob/living/carbon/Life()
-	..()
-
+	. = ..()
 	handle_viruses()
 	// Increase germ_level regularly
 	if(germ_level < GERM_LEVEL_AMBIENT && prob(30))	//if you're just standing there, you shouldn't get more germs beyond an ambient level
@@ -37,11 +36,13 @@
 	. = ..()
 	if(.)
 		if (src.nutrition && src.stat != 2)
-			src.nutrition -= DEFAULT_HUNGER_FACTOR/10
+			src.adjustNutrition(-DEFAULT_HUNGER_FACTOR/10)
 			if (move_intent.flags & MOVE_INTENT_EXERTIVE)
-				src.nutrition -= DEFAULT_HUNGER_FACTOR/10
+				src.adjustNutrition(-DEFAULT_HUNGER_FACTOR/10)
 
-
+		if(is_watching == TRUE)
+			reset_view(null)
+			is_watching = FALSE
 		// Moving around increases germ_level faster
 		if(germ_level < GERM_LEVEL_MOVE_CAP && prob(8))
 			germ_level++
@@ -93,7 +94,7 @@
 			return
 
 
-/mob/living/carbon/electrocute_act(var/shock_damage, var/obj/source, var/siemens_coeff = 1.0, var/def_zone = null)
+/mob/living/carbon/electrocute_act(var/shock_damage, var/obj/source, var/siemens_coeff = 1, var/def_zone = null)
 	if(status_flags & GODMODE)	return 0	//godmode
 	shock_damage *= siemens_coeff
 	if (shock_damage<1)
@@ -107,6 +108,7 @@
 			"\red <B>You feel a powerful shock course through your body!</B>", \
 			"\red You hear a heavy electrical crack." \
 		)
+		SEND_SIGNAL(src, COMSIG_CARBON_ELECTROCTE)
 		Stun(10)//This should work for now, more is really silly and makes you lay there forever
 		Weaken(10)
 	else
@@ -365,8 +367,11 @@
 	return 1
 
 /mob/living/carbon/proc/add_chemical_effect(var/effect, var/magnitude = 1)
-	if(effect == CE_ALCOHOL && stats.getPerk(/datum/perk/inspiration))
-		stats.addPerk(/datum/perk/active_inspiration)
+	if(effect == CE_ALCOHOL)
+		if(stats.getPerk(/datum/perk/inspiration))
+			stats.addPerk(/datum/perk/active_inspiration)
+		if(stats.getPerk(PERK_ALCOHOLIC))
+			stats.addPerk(PERK_ALCOHOLIC_ACTIVE)
 	if(effect in chem_effects)
 		chem_effects[effect] += magnitude
 	else
@@ -398,7 +403,7 @@
 	onclose(user, "mob[name]")
 	return
 
-/mob/living/carbon/proc/should_have_organ(var/organ_check)
+/mob/living/carbon/proc/should_have_process(var/organ_check)
 	return 0
 
 /mob/living/carbon/proc/has_appendage(var/limb_check)

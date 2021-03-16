@@ -49,7 +49,9 @@
 //		decls_repository.get_decl(/decl/hierarchy/skill)
 	player_setup = new(src)
 	gender = pick(MALE, FEMALE)
-	real_name = random_name(gender,species)
+	real_first_name = random_first_name(gender,species)
+	real_last_name = random_last_name(species)
+	real_name = real_first_name + " " + real_last_name
 	b_type = RANDOM_BLOOD_TYPE
 
 	if(client && !IsGuestKey(client.key))
@@ -150,7 +152,7 @@
 		close_load_dialog(usr)
 	else if(href_list["resetslot"])
 		if(real_name != input("This will reset the current slot. Enter the character's full name to confirm."))
-			return 0
+			return FALSE
 		load_character(SAVE_RESET)
 		sanitize_preferences()
 	else
@@ -163,18 +165,28 @@
 	// Sanitizing rather than saving as someone might still be editing when copy_to occurs.
 	player_setup.sanitize_setup()
 	character.set_species(species)
+	var/random_first = random_first_name(gender, species)
+	var/random_last = random_last_name(gender, species)
+	var/random_full = real_first_name + " " + real_last_name
 
 	if(be_random_name)
-		real_name = random_name(gender,species)
+		real_first_name = random_first
+		real_last_name = random_last
+		real_name = random_full
+
+	if(GLOB.in_character_filter.len) //This does not always work correctly but is here as a backup in case the first two attempts to catch bad names fail.
+		if(findtext(real_first_name, config.ic_filter_regex) || findtext(real_last_name, config.ic_filter_regex))
+			real_first_name = random_first
+			real_last_name = random_last
+			real_name = random_full
 
 	if(config.humans_need_surnames)
-		var/firstspace = findtext(real_name, " ")
-		var/name_length = length(real_name)
-		if(!firstspace)	//we need a surname
-			real_name += " [pick(GLOB.last_names)]"
-		else if(firstspace == name_length)
-			real_name += "[pick(GLOB.last_names)]"
+		if(!real_last_name)	//we need a surname
+			real_last_name = "[pick(GLOB.last_names)]"
+			real_name += " [real_last_name]"
 	character.fully_replace_character_name(newname = real_name)
+	character.first_name = real_first_name
+	character.last_name = real_last_name
 	character.gender = gender
 	character.age = age
 	character.b_type = b_type
@@ -235,7 +247,11 @@
 		character.nutrition = rand(250, 450)
 
 	for(var/options_name in setup_options)
+		if(!get_option(options_name))
+			continue
 		get_option(options_name).apply(character)
+
+	character.post_prefinit()
 
 
 /datum/preferences/proc/open_load_dialog(mob/user)
@@ -248,7 +264,7 @@
 		dat += "<b>Select a character slot to load</b><hr>"
 		var/name
 		for(var/i=1, i<= config.character_slots, i++)
-			S.cd = maps_data.character_load_path(S, i)
+			S.cd = GLOB.maps_data.character_load_path(S, i)
 			S["real_name"] >> name
 			if(!name)	name = "Character[i]"
 			if(i==default_slot)

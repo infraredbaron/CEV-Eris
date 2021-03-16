@@ -23,7 +23,7 @@
 /mob/living/exosuit/getarmor(def_zone, type)
 	. = ..()
 	if(body?.armor_plate)
-		var/body_armor = body.armor_plate?.armor[type]
+		var/body_armor = body.armor_plate?.armor.getRating(type)
 		if(body_armor) . += body_armor
 
 /mob/living/exosuit/updatehealth()
@@ -48,7 +48,7 @@
 		else return body
 
 
-/mob/living/exosuit/apply_damage(damage = 0, damagetype = BRUTE, def_zone = null, sharp = 0, edge = 0, obj/used_weapon = null)
+/mob/living/exosuit/apply_damage(damage = 0, damagetype = BRUTE, def_zone = null, sharp = FALSE, edge = FALSE, obj/used_weapon = null)
 	. = ..()
 	updatehealth()
 

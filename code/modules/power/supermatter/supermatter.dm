@@ -16,7 +16,7 @@
 */
 
 //This is the main parameter for tweaking SM balance, as it basically controls how the power variable relates to the rest of the game.
-#define POWER_FACTOR 1.0
+#define POWER_FACTOR 1
 #define DECAY_FACTOR 700			//Affects how fast the supermatter power decays
 #define CRITICAL_TEMPERATURE 5000	//K
 #define CHARGING_FACTOR 0.05
@@ -37,8 +37,8 @@
 	desc = "A strangely translucent and iridescent crystal. \red You get headaches just from looking at it."
 	icon = 'icons/obj/engine.dmi'
 	icon_state = "darkmatter"
-	density = 1
-	anchored = 0
+	density = TRUE
+	anchored = FALSE
 	light_range = 4
 
 	var/gasefficency = 0.25
@@ -109,7 +109,7 @@
 
 /obj/machinery/power/supermatter/proc/explode()
 	log_and_message_admins("Supermatter exploded at [x] [y] [z]")
-	anchored = 1
+	anchored = TRUE
 	grav_pulling = 1
 	exploded = 1
 	for(var/mob/living/mob in GLOB.living_mob_list)
@@ -170,8 +170,8 @@
 /obj/machinery/power/supermatter/get_transit_zlevel()
 	//don't send it back to the station -- most of the time
 	if(prob(99))
-		var/list/candidates = maps_data.accessable_levels.Copy()
-		for(var/zlevel in maps_data.station_levels)
+		var/list/candidates = GLOB.maps_data.accessable_levels.Copy()
+		for(var/zlevel in GLOB.maps_data.station_levels)
 			candidates.Remove("[zlevel]")
 		candidates.Remove("[src.z]")
 
@@ -348,7 +348,7 @@
 		var/distance = get_dist(R, src)
 		if(distance <= 15)
 			//for collectors using standard plasma tanks at 1013 kPa, the actual power generated will be this transfer_energy*20*29 = transfer_energy*580
-			R.receive_pulse(transfer_energy * (min(3/distance, 1))**2)
+			R.receive_pulse(transfer_energy * (min(3/(distance != 0 ? distance : 1), 1))**2)
 
 
 /obj/machinery/power/supermatter/attackby(obj/item/weapon/W as obj, mob/living/user as mob)

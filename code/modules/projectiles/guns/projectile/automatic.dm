@@ -6,7 +6,7 @@
 	w_class = ITEM_SIZE_NORMAL
 	load_method = SPEEDLOADER //Default is speedloader because all might not have magazine sprites.
 	max_shells = 22
-	caliber = CAL_35A
+	caliber = CAL_PISTOL
 	origin_tech = list(TECH_COMBAT = 4, TECH_MATERIAL = 2)
 	slot_flags = SLOT_BELT
 	ammo_type = /obj/item/ammo_casing/pistol
@@ -16,7 +16,7 @@
 	reload_sound = 'sound/weapons/guns/interact/smg_magin.ogg'
 	cocked_sound = 'sound/weapons/guns/interact/smg_cock.ogg'
 	zoom_factor = 0 //Default zoom factor you want on all automatic weapons.
-	gun_tags = list(GUN_PROJECTILE, GUN_INTERNAL_MAG)
+	bad_type = /obj/item/weapon/gun/projectile/automatic
 	init_firemodes = list(
 		FULL_AUTO_400,
 		SEMI_AUTO_NODELAY,
@@ -30,9 +30,9 @@
 /datum/firemode/automatic
 	settings = list(burst = 1, suppress_delay_warning = TRUE, dispersion=null)
 	//The full auto clickhandler we have
-	var/datum/click_handler/fullauto/CH = null
+	var/datum/click_handler/fullauto/CH
 
-/datum/firemode/automatic/update(var/force_state = null)
+/datum/firemode/automatic/update(force_state = null)
 	var/mob/living/L
 	if (gun && gun.is_held())
 		L = gun.loc

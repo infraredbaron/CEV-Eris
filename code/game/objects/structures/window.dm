@@ -10,7 +10,7 @@
 	var/maxhealth = 20
 	var/resistance = RESISTANCE_NONE	//Incoming damage is reduced by this flat amount before being subtracted from health. Defines found in code\__defines\weapons.dm
 	var/maximal_heat = T0C + 100 		// Maximal heat before this window begins taking damage from fire
-	var/damage_per_fire_tick = 2.0 		// Amount of damage per fire tick. Regular windows are not fireproof so they might as well break quickly.
+	var/damage_per_fire_tick = 2 		// Amount of damage per fire tick. Regular windows are not fireproof so they might as well break quickly.
 	var/health
 	var/ini_dir = null
 	var/state = 2
@@ -116,7 +116,7 @@
 	//Cache a list of nearby turfs for throwing shards at
 	var/list/turf/nearby
 	if (explode)
-		nearby = (trange(2, src) - get_turf(src))
+		nearby = (RANGE_TURFS(2, src) - get_turf(src))
 
 	if(display_message)
 		visible_message("[src] shatters!")
@@ -152,13 +152,13 @@
 
 /obj/structure/window/ex_act(severity)
 	switch(severity)
-		if(1.0)
+		if(1)
 			qdel(src)
 			return
-		if(2.0)
+		if(2)
 			shatter(0,TRUE)
 			return
-		if(3.0)
+		if(3)
 			if(prob(50))
 				shatter(0,TRUE)
 				return
@@ -421,7 +421,7 @@
 
 
 /obj/structure/window/Destroy()
-	density = 0
+	density = FALSE
 	update_nearby_tiles()
 	var/turf/location = loc
 	loc = null
@@ -444,10 +444,10 @@
 		return 1
 	return 0
 
-/obj/structure/window/proc/set_anchored(var/new_anchored)
-	if(anchored == new_anchored)
-		return
-	anchored = new_anchored
+/obj/structure/window/set_anchored(new_anchored)
+	. = ..()
+	if(!.)
+		return FALSE
 	update_verbs()
 	update_nearby_icons()
 
@@ -481,7 +481,7 @@
 			if(W.anchored && W.density && W.type == src.type && W.is_fulltile()) //Only counts anchored, not-destroyed fill-tile windows.
 				dirs += get_dir(src, W)
 
-	for(var/turf/simulated/wall/T in trange(1, src) - src)
+	for(var/turf/simulated/wall/T in RANGE_TURFS(1, src) - src)
 		var/T_dir = get_dir(src, T)
 		dirs |= T_dir
 		if(propagate)
@@ -515,7 +515,7 @@
 	basestate = "window"
 	glasstype = /obj/item/stack/material/glass
 	maximal_heat = T0C + 200	// Was 100. Spaceship windows surely surpass coffee pots.
-	damage_per_fire_tick = 3.0	// Was 2. Made weaker than rglass per tick.
+	damage_per_fire_tick = 3	// Was 2. Made weaker than rglass per tick.
 	maxhealth = 15
 	resistance = RESISTANCE_NONE
 
@@ -531,7 +531,7 @@
 /obj/structure/window/plasmabasic
 	name = "plasma window"
 	desc = "A borosilicate alloy window. It seems to be quite strong."
-	basestate = "pwindow"
+
 	icon_state = "plasmawindow"
 	shardtype = /obj/item/weapon/material/shard/plasma
 	glasstype = /obj/item/stack/material/glass/plasmaglass
@@ -543,6 +543,7 @@
 /obj/structure/window/plasmabasic/full
 	dir = SOUTH|EAST
 	icon = 'icons/obj/structures/windows.dmi'
+	basestate = "pwindow"
 	icon_state = "plasmawindow_mask"
 	alpha = 150
 	maxhealth = 200
@@ -556,7 +557,7 @@
 	basestate = "rwindow"
 	reinf = 1
 	maximal_heat = T0C + 750	// Fused quartz.
-	damage_per_fire_tick = 2.0
+	damage_per_fire_tick = 2
 	glasstype = /obj/item/stack/material/glass/reinforced
 
 	maxhealth = 50
@@ -581,7 +582,7 @@
 /obj/structure/window/reinforced/plasma
 	name = "reinforced plasma window"
 	desc = "A borosilicate alloy window, with rods supporting it. It seems to be very strong."
-	basestate = "rpwindow"
+	basestate = "plasmarwindow"
 	icon_state = "plasmarwindow"
 	shardtype = /obj/item/weapon/material/shard/plasma
 	glasstype = /obj/item/stack/material/glass/plasmarglass
@@ -593,6 +594,7 @@
 /obj/structure/window/reinforced/plasma/full
 	dir = SOUTH|EAST
 	icon = 'icons/obj/structures/windows.dmi'
+	basestate = "rpwindow"
 	icon_state = "plasmarwindow_mask"
 	alpha = 150
 	maxhealth = 250

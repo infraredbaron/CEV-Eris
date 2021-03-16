@@ -28,8 +28,8 @@
 	id = "Centcom Relay"
 	hide = 1
 	toggled = 1
-	//anchored = 1
-	//use_power = 0
+	//anchored = TRUE
+	//use_power = NO_POWER_USE
 	//idle_power_usage = 0
 	produces_heat = 0
 	autolinkers = list("c_relay")

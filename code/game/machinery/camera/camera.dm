@@ -3,7 +3,7 @@
 	desc = "It's used to monitor rooms."
 	icon = 'icons/obj/monitors.dmi'
 	icon_state = "camera"
-	use_power = 2
+	use_power = ACTIVE_POWER_USE
 	idle_power_usage = 5
 	active_power_usage = 10
 	layer = WALL_OBJ_LAYER
@@ -12,7 +12,7 @@
 	var/c_tag = null
 	var/c_tag_order = 999
 	var/status = 1
-	anchored = 1.0
+	anchored = TRUE
 	var/invuln = null
 	var/bugged = 0
 	var/obj/item/weapon/camera_assembly/assembly = null
@@ -155,7 +155,7 @@
 					to_chat(user, SPAN_NOTICE("You weld the assembly securely into place."))
 					if(assembly)
 						assembly.loc = src.loc
-						assembly.anchored = 1
+						assembly.anchored = TRUE
 						assembly.camera_name = c_tag
 						assembly.camera_network = english_list(network, "Exodus", ",", ",")
 						assembly.update_icon()
@@ -185,7 +185,7 @@
 			return
 
 
-	if(istype(I, /obj/item/weapon/tool) && panel_open)
+	if(istool(I) && panel_open)
 		interact(user)
 
 	// OTHER

@@ -9,8 +9,9 @@
 	reagent_flags = OPENCONTAINER
 	amount_per_transfer_from_this = 5
 	volume = 50
-	var/base_name = null // Name to put in front of drinks, i.e. "[base_name] of [contents]"
-	var/base_icon = null // Base icon name for fill states
+	bad_type = /obj/item/weapon/reagent_containers/food/drinks
+	var/base_name // Name to put in front of drinks, i.e. "[base_name] of [contents]"
+	var/base_icon // Base icon name for fill states
 
 /obj/item/weapon/reagent_containers/food/drinks/Initialize()
 	. = ..()
@@ -60,7 +61,7 @@
 
 /obj/item/weapon/reagent_containers/food/drinks/update_icon()
 	cut_overlays()
-	if(reagents.total_volume)
+	if(reagents && reagents.total_volume)
 		if(base_name)
 			var/datum/reagent/R = reagents.get_master_reagent()
 			SetName("[base_name] of [R.glass_name ? R.glass_name : "something"]")
@@ -77,6 +78,10 @@
 	set category = "Object"
 	set name = "Gulp Down"
 	set src in view(1)
+
+	if(isghost(usr))
+		to_chat(usr, "You ghost!")
+		return
 
 	if(is_drainable())
 		if(ishuman(usr))
@@ -177,7 +182,8 @@
 	base_icon = "cup"
 	filling_states = "100"
 	preloaded_reagents = list("dry_ramen" = 30)
-
+	spawn_tags = SPAWN_TAG_JUNKFOOD
+	rarity_value = 15
 
 /obj/item/weapon/reagent_containers/food/drinks/sillycup
 	name = "paper cup"
@@ -188,7 +194,7 @@
 	center_of_mass = list("x"=16, "y"=12)
 
 /obj/item/weapon/reagent_containers/food/drinks/sillycup/update_icon()
-	if(reagents.total_volume)
+	if(reagents && reagents.total_volume)
 		icon_state = "water_cup"
 	else
 		icon_state = "water_cup_e"
@@ -273,6 +279,8 @@
 	icon_state = "barflask"
 	volume = 60
 	center_of_mass = list("x"=17, "y"=7)
+	spawn_tags = SPAWN_TAG_JUNK
+	rarity_value = 20
 
 /obj/item/weapon/reagent_containers/food/drinks/flask/vacuumflask
 	name = "vacuum flask"

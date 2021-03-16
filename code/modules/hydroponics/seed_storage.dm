@@ -22,9 +22,9 @@
 	desc = "It stores, sorts, and dispenses seeds."
 	icon = 'icons/obj/vending.dmi'
 	icon_state = "seeds"
-	density = 1
-	anchored = 1
-	use_power = 1
+	density = TRUE
+	anchored = TRUE
+	use_power = IDLE_POWER_USE
 	idle_power_usage = 100
 
 	var/list/datum/seed_pile/piles = list()

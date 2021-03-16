@@ -6,20 +6,20 @@
 	stance = COMMANDED_STOP
 	melee_damage_lower = 0
 	melee_damage_upper = 0
-	density = 0
+	density = FALSE
 	attacktext = "swarmed"
 	var/list/command_buffer = list()
 	var/list/known_commands = list("stay", "stop", "attack", "follow")
 	var/mob/master = null //undisputed master. Their commands hold ultimate sway and ultimate power.
 	var/list/allowed_targets = list() //WHO CAN I KILL D:
 
-/mob/living/simple_animal/hostile/commanded/hear_say(var/message, var/verb = "says", var/datum/language/language = null, var/alt_name = "", var/italics = 0, var/mob/speaker = null, var/sound/speech_sound, var/sound_vol)
+/mob/living/simple_animal/hostile/commanded/hear_say(var/message, var/verb = "says", var/datum/language/language, var/alt_name = "", var/italics = 0, var/mob/speaker = null, var/sound/speech_sound, var/sound_vol)
 	if((speaker in friends) || speaker == master)
 		command_buffer.Add(speaker)
 		command_buffer.Add(lowertext(html_decode(message)))
 	return 0
 
-/mob/living/simple_animal/hostile/commanded/hear_radio(var/message, var/verb="says", var/datum/language/language=null, var/part_a, var/part_b, var/mob/speaker = null, var/hard_to_hear = 0)
+/mob/living/simple_animal/hostile/commanded/hear_radio(var/message, var/verb="says", var/datum/language/language, var/part_a, var/part_b, var/mob/speaker = null, var/hard_to_hear = 0)
 	if((speaker in friends) || speaker == master)
 		command_buffer.Add(speaker)
 		command_buffer.Add(lowertext(html_decode(message)))

@@ -174,7 +174,7 @@
 	update_icons()
 
 /mob/living/bot/cleanbot/explode()
-	on = 0
+	on = FALSE
 	visible_message(SPAN_DANGER("[src] blows apart!"))
 	playsound(loc, "robot_talk_light", 100, 2, 0)
 	var/turf/Tsec = get_turf(src)
@@ -299,8 +299,8 @@
 	name = "proxy bucket"
 	icon = 'icons/obj/aibots.dmi'
 	icon_state = "bucket_proxy"
-	force = 3.0
-	throwforce = 10.0
+	force = 3
+	throwforce = 10
 	throw_speed = 2
 	throw_range = 5
 	w_class = ITEM_SIZE_NORMAL

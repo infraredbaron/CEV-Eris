@@ -9,7 +9,7 @@
 	see_invisible = SEE_INVISIBLE_NOLIGHTING
 	flash_protection = FLASH_PROTECTION_REDUCED
 	price_tag = 1000
-
+	rarity_value = 80
 	tick_cost = 0.5
 
 
@@ -35,7 +35,9 @@
 	name = "Optical Meson Scanner"
 	desc = "Used for seeing walls, floors, and stuff through anything."
 	icon_state = "meson"
-	origin_tech = list(TECH_MAGNET = 3, TECH_ILLEGAL = 4)
+	origin_tech = list(TECH_MAGNET = 3, TECH_COVERT = 4)
+	rarity_value = 50
+	spawn_blacklisted = TRUE
 
 
 /obj/item/clothing/glasses/powered/thermal/onestar
@@ -43,6 +45,8 @@
 	desc = "Chinese thermals in the shape of goggles."
 	icon_state = "onestar_thermal"
 	off_state = "onestar_thermal"
+	rarity_value = 100
+	spawn_blacklisted = TRUE
 
 /obj/item/clothing/glasses/powered/thermal/plain
 	toggleable = FALSE
@@ -54,6 +58,7 @@
 	desc = "A monocle thermal."
 	icon_state = "thermoncle"
 	flags = null //doesn't protect eyes because it's a monocle, duh
+	rarity_value = 10
 
 	body_parts_covered = 0
 
@@ -77,9 +82,10 @@
 	icon_state = "thermal_lens"
 	body_parts_covered = 0
 	slot_flags = 0
+	spawn_blacklisted = TRUE
 
 
-/obj/item/clothing/glasses/attackby(var/obj/item/Z, var/mob/user)
+/obj/item/clothing/glasses/attackby(obj/item/Z, mob/user)
 
 	if (istype(Z,/obj/item/clothing/glasses/powered/thermal/lens))
 		overlay = global_hud.thermal
@@ -87,7 +93,7 @@
 		see_invisible = SEE_INVISIBLE_NOLIGHTING
 		protection = flash_protection
 		flash_protection = FLASH_PROTECTION_REDUCED
-		origin_tech = list(TECH_ILLEGAL = 3)
+		origin_tech = list(TECH_COVERT = 3)
 		to_chat(usr, "You attached your lenses to your glasses")
 		have_lenses = 1
 		qdel(Z)
@@ -113,3 +119,4 @@
 		var/obj/item/clothing/glasses/powered/thermal/lens/THL = new()
 		usr.put_in_hands(THL)
 	else to_chat(usr, "You haven't got any lenses in your glasses");
+

@@ -82,7 +82,21 @@
 		list(CRAFT_MATERIAL, 10, MATERIAL_STEEL),
 	)
 
+/datum/craft_recipe/machinery/duct_vertical
+	name = "vertical fluid duct"
+	result = /obj/machinery/duct/vertical
+	steps = list(
+		list(/obj/item/stack/ducts, 3, "time" = 10),
+		list(QUALITY_BOLT_TURNING, 10, 80)
+	)
 
+/datum/craft_recipe/machinery/duct_multilayered
+	name = "fluid duct layer-manifold"
+	result = /obj/machinery/duct/multilayered
+	steps = list(
+		list(/obj/item/stack/ducts, 5, "time" = 15),
+		list(QUALITY_BOLT_TURNING, 10, 80)
+	)
 
 //wall or small you know them req only 2 list
 /datum/craft_recipe/machinery/wall
@@ -112,8 +126,8 @@
 	result = /obj/item/frame/fire_alarm
 
 /datum/craft_recipe/machinery/wall/station_holomap
-	name = "station holomap frame"
-	result = /obj/item/frame/station_holomap
+	name = "holomap frame"
+	result = /obj/item/frame/holomap
 
 /datum/craft_recipe/machinery/AI_core
 	name = "AI core"

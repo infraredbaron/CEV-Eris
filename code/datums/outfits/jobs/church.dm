@@ -15,7 +15,7 @@
 	id_type = /obj/item/weapon/card/id/chaplain
 	head = /obj/item/clothing/head/preacher
 	uniform = /obj/item/clothing/under/rank/preacher
-	suit = /obj/item/clothing/suit/neotheology_coat
+	suit = /obj/item/clothing/suit/storage/neotheology_coat
 	shoes = /obj/item/clothing/shoes/reinforced
 	gloves = /obj/item/clothing/gloves/thick
 	backpack_contents = list(/obj/item/weapon/book/ritual/cruciform/priest = 1)
@@ -36,3 +36,4 @@
 /decl/hierarchy/outfit/job/church/janitor
 	name = OUTFIT_JOB_NAME("Janitor")
 	uniform = /obj/item/clothing/under/rank/church
+	shoes = /obj/item/clothing/shoes/jackboots/neotheology

@@ -14,7 +14,7 @@
 	var/field_radius = 3
 	var/max_field_radius = 100
 	var/list/field
-	density = 1
+	density = TRUE
 	var/locked = 0
 	var/average_field_strength = 0
 	var/strengthen_rate = 0.2
@@ -28,7 +28,7 @@
 	var/max_field_strength = 10
 	var/time_since_fail = 100
 	var/energy_conversion_rate = 0.0002	//how many renwicks per watt?
-	use_power = 0	//doesn't use APC power
+	use_power = NO_POWER_USE	//doesn't use APC power
 
 /obj/machinery/shield_gen/New()
 	spawn(10)

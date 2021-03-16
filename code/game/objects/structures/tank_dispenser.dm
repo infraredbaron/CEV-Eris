@@ -3,10 +3,12 @@
 	desc = "A simple yet bulky storage device for gas tanks. Has room for up to ten oxygen tanks, and ten plasma tanks."
 	icon = 'icons/obj/objects.dmi'
 	icon_state = "dispenser"
-	density = 1
-	anchored = 1.0
+	density = TRUE
+	anchored = TRUE
 	w_class = ITEM_SIZE_HUGE
 	layer = BELOW_OBJ_LAYER
+	spawn_tags = SPAWN_TAG_STRUCTURE_COMMON
+	rarity_value = 50
 	var/oxygentanks = 10
 	var/plasmatanks = 10
 	var/list/oxytanks = list()	//sorry for the similar var names
@@ -15,9 +17,11 @@
 
 /obj/structure/dispenser/oxygen
 	plasmatanks = 0
+	rarity_value = 10
 
 /obj/structure/dispenser/plasma
 	oxygentanks = 0
+	rarity_value = 25
 
 
 /obj/structure/dispenser/Initialize()

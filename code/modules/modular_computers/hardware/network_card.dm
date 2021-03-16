@@ -8,10 +8,11 @@ var/global/ntnet_card_uid = 1
 	matter_reagents = list("silicon" = 20)
 	icon_state = "netcard"
 	hardware_size = 1
-	var/identification_id = null	// Identification ID. Technically MAC address of this device. Can't be changed by user.
-	var/identification_string = "" 	// Identification string, technically nickname seen in the network. Can be set by user.
+	rarity_value = 8.33
+	var/identification_id			// Identification ID. Technically MAC address of this device. Can't be changed by user.
+	var/identification_string = ""	// Identification string, technically nickname seen in the network. Can be set by user.
 	var/long_range = FALSE
-	var/ethernet = FALSE // Hard-wired, therefore always on, ignores NTNet wireless checks.
+	var/ethernet = FALSE	// Hard-wired, therefore always on, ignores NTNet wireless checks.
 	var/datum/radio_frequency/radio_connection	// Used by signaller code
 	var/frequency = 1457
 	malfunction_probability = 1
@@ -26,7 +27,7 @@ var/global/ntnet_card_uid = 1
 	SSradio.remove_object(src, frequency)
 	return ..()
 
-/obj/item/weapon/computer_hardware/network_card/diagnostics(var/mob/user)
+/obj/item/weapon/computer_hardware/network_card/diagnostics(mob/user)
 	..()
 	to_chat(user, "NIX Unique ID: [identification_id]")
 	to_chat(user, "NIX User Tag: [identification_string]")
@@ -80,6 +81,7 @@ var/global/ntnet_card_uid = 1
 	icon_state = "netcard_adv"
 	hardware_size = 1
 	price_tag = 100
+	rarity_value = 16.66
 
 /obj/item/weapon/computer_hardware/network_card/wired
 	name = "wired network card"
@@ -99,7 +101,7 @@ var/global/ntnet_card_uid = 1
 	return ntnet_global.check_banned(identification_id)
 
 // 0 - No signal, 1 - Low signal, 2 - High signal. 3 - Wired Connection
-/obj/item/weapon/computer_hardware/network_card/proc/get_signal(var/specific_action = 0)
+/obj/item/weapon/computer_hardware/network_card/proc/get_signal(specific_action = 0)
 	if(!holder2) // Hardware is not installed in anything. No signal. How did this even get called?
 		return 0
 
@@ -120,13 +122,13 @@ var/global/ntnet_card_uid = 1
 		var/turf/T = get_turf(holder2)
 		if(!istype(T)) //no reception in nullspace
 			return 0
-		if(T.z in maps_data.station_levels)
+		if(T.z in GLOB.maps_data.station_levels)
 			// Computer is on station. Low/High signal depending on what type of network card you have
 			if(long_range)
 				return 2
 			else
 				return 1
-		if(T.z in maps_data.contact_levels) //not on station, but close enough for radio signal to travel
+		if(T.z in GLOB.maps_data.contact_levels) //not on station, but close enough for radio signal to travel
 			if(long_range) // Computer is not on station, but it has upgraded network card. Low signal.
 				return 1
 

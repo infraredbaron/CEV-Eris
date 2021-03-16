@@ -15,7 +15,7 @@
 	icon_state = "door_open"
 	req_one_access = list(access_atmospherics, access_engine_equip, access_medical_equip)
 	opacity = 0
-	density = 0
+	density = FALSE
 	layer = BELOW_OPEN_DOOR_LAYER
 	open_layer = BELOW_OPEN_DOOR_LAYER // Just below doors when open
 	closed_layer = CLOSED_FIREDOOR_LAYER // Just above doors when closed
@@ -35,7 +35,7 @@
 	var/hatch_open = 0
 
 	power_channel = ENVIRON
-	use_power = 1
+	use_power = IDLE_POWER_USE
 	idle_power_usage = 5
 
 	var/list/tile_info[4]
@@ -210,12 +210,12 @@
 					user.visible_message(SPAN_DANGER("[user] has removed the electronics from \the [src]."),
 										"You have removed the electronics from [src].")
 					if (stat & BROKEN)
-						new /obj/item/weapon/circuitboard/broken(src.loc)
+						new /obj/item/weapon/electronics/circuitboard/broken(src.loc)
 					else
-						new/obj/item/weapon/airalarm_electronics(src.loc)
+						new/obj/item/weapon/electronics/airalarm(src.loc)
 					var/obj/structure/firedoor_assembly/FA = new/obj/structure/firedoor_assembly(src.loc)
-					FA.anchored = 1
-					FA.density = 1
+					FA.anchored = TRUE
+					FA.density = TRUE
 					FA.wired = 1
 					FA.update_icon()
 					qdel(src)

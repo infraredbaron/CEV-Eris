@@ -65,7 +65,7 @@
 
 	//pref.skills_allocated = pref.sanitize_skills(pref.skills_allocated)		//this proc also automatically computes and updates points_by_job
 
-	var/jobs_by_type = decls_repository.get_decls(maps_data.allowed_jobs)
+	var/jobs_by_type = decls_repository.get_decls(GLOB.maps_data.allowed_jobs)
 	for(var/job_type in jobs_by_type)
 		var/datum/job/job = jobs_by_type[job_type]
 		var/alt_title = pref.player_alt_titles[job.title]
@@ -351,7 +351,8 @@
 			job_desc += "You are in charge of this department."
 	job_desc += "<br>"
 	job_desc += "You answer to <b>[job.supervisors]</b> normally."
-
+	job_desc += "<br>"
+	job_desc += "The Ideal character age for this role is <b>[job.ideal_character_age] years</b>."
 
 
 
@@ -440,7 +441,7 @@
  */
 /datum/category_item/player_setup_item/proc/prune_job_prefs()
 	var/allowed_titles = list()
-	var/jobs_by_type = decls_repository.get_decls(maps_data.allowed_jobs)
+	var/jobs_by_type = decls_repository.get_decls(GLOB.maps_data.allowed_jobs)
 	for(var/job_type in jobs_by_type)
 		var/datum/job/job = jobs_by_type[job_type]
 		allowed_titles += job.title

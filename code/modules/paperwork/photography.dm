@@ -42,7 +42,8 @@ var/global/photo_count = 0
 		var/obj/O = loc
 		O.update_icon()
 
-/obj/item/weapon/photo/New()
+/obj/item/weapon/photo/Initialize(mapload)
+	. = ..()
 	id = photo_count++
 
 /obj/item/weapon/photo/attack_self(mob/user as mob)
@@ -112,7 +113,7 @@ var/global/photo_count = 0
 	matter = list(MATERIAL_PLASTIC = 5, MATERIAL_GLASS = 2)
 	var/pictures_max = 10
 	var/pictures_left = 10
-	var/on = 1
+	var/on = TRUE
 	var/icon_on = "camera"
 	var/icon_off = "camera_off"
 	var/radius = 2
@@ -183,10 +184,10 @@ var/global/photo_count = 0
 	desc = "A polaroid camera. It has [pictures_left] photos left."
 	to_chat(user, SPAN_NOTICE("[pictures_left] photos left."))
 	icon_state = icon_off
-	on = 0
+	on = FALSE
 	spawn(64)
 		icon_state = icon_on
-		on = 1
+		on = TRUE
 
 //Proc for capturing check
 /mob/living/proc/can_capture_turf(turf/T)

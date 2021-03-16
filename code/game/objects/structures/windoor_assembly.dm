@@ -13,12 +13,12 @@ obj/structure/windoor_assembly
 	name = "windoor assembly"
 	icon = 'icons/obj/doors/windoor.dmi'
 	icon_state = "l_windoor_assembly0"
-	anchored = 0
-	density = 0
+	anchored = FALSE
+	density = FALSE
 	dir = NORTH
 	w_class = ITEM_SIZE_NORMAL
 
-	var/obj/item/weapon/airlock_electronics/electronics = null
+	var/obj/item/weapon/electronics/airlock/electronics = null
 
 	//Vars to help with the icon's name
 	var/facing = "l"	//Does the windoor open to the left or right?
@@ -29,7 +29,7 @@ obj/structure/windoor_assembly/New(Loc, start_dir=NORTH, constructed=0)
 	..()
 	if(constructed)
 		state = 0
-		anchored = 0
+		anchored = FALSE
 	switch(start_dir)
 		if(NORTH, SOUTH, EAST, WEST)
 			set_dir(start_dir)
@@ -39,7 +39,7 @@ obj/structure/windoor_assembly/New(Loc, start_dir=NORTH, constructed=0)
 	update_nearby_tiles(need_rebuild=1)
 
 obj/structure/windoor_assembly/Destroy()
-	density = 0
+	density = FALSE
 	update_nearby_tiles()
 	. = ..()
 
@@ -84,7 +84,7 @@ obj/structure/windoor_assembly/Destroy()
 			if(state == 0 && !anchored)
 				if(I.use_tool(user, src, WORKTIME_FAST, tool_type, FAILCHANCE_NORMAL, required_stat = STAT_MEC))
 					to_chat(user, SPAN_NOTICE("You've secured the windoor assembly!"))
-					src.anchored = 1
+					src.anchored = TRUE
 					if(src.secure)
 						src.name = "Secure Anchored Windoor Assembly"
 					else
@@ -93,7 +93,7 @@ obj/structure/windoor_assembly/Destroy()
 			if(state == 0 && anchored)
 				if(I.use_tool(user, src, WORKTIME_FAST, tool_type, FAILCHANCE_NORMAL, required_stat = STAT_MEC))
 					to_chat(user, SPAN_NOTICE("You've unsecured the windoor assembly!"))
-					anchored = 0
+					anchored = FALSE
 					if(src.secure)
 						src.name = "Secure Windoor Assembly"
 					else
@@ -116,7 +116,7 @@ obj/structure/windoor_assembly/Destroy()
 			if(state == 1 && electronics)
 				if(I.use_tool(user, src, WORKTIME_FAST, tool_type, FAILCHANCE_NORMAL, required_stat = STAT_MEC))
 					usr << browse(null, "window=windoor_access")
-					density = 1 //Shouldn't matter but just incase
+					density = TRUE //Shouldn't matter but just incase
 					to_chat(user, SPAN_NOTICE("You finish the windoor!"))
 
 					if(secure)
@@ -128,7 +128,7 @@ obj/structure/windoor_assembly/Destroy()
 							windoor.icon_state = "rightsecureopen"
 							windoor.base_state = "rightsecure"
 						windoor.set_dir(src.dir)
-						windoor.density = 0
+						windoor.density = FALSE
 
 						if(src.electronics.one_access)
 							windoor.req_access = null
@@ -146,7 +146,7 @@ obj/structure/windoor_assembly/Destroy()
 							windoor.icon_state = "rightopen"
 							windoor.base_state = "right"
 						windoor.set_dir(src.dir)
-						windoor.density = 0
+						windoor.density = FALSE
 
 						if(src.electronics.one_access)
 							windoor.req_access = null
@@ -181,7 +181,7 @@ obj/structure/windoor_assembly/Destroy()
 						src.name = "Secure Wired Windoor Assembly"
 					else
 						src.name = "Wired Windoor Assembly"
-					var/obj/item/weapon/airlock_electronics/ae = electronics
+					var/obj/item/weapon/electronics/airlock/ae = electronics
 					electronics = null
 					ae.loc = src.loc
 					return
@@ -228,7 +228,7 @@ obj/structure/windoor_assembly/Destroy()
 		if(1)
 
 			//Adding airlock electronics for access. Step 6 complete.
-			if(istype(I, /obj/item/weapon/airlock_electronics) && I:icon_state != "door_electronics_smoked")
+			if(istype(I, /obj/item/weapon/electronics/airlock) && I:icon_state != "door_electronics_smoked")
 				playsound(src.loc, 'sound/items/Screwdriver.ogg', 100, 1)
 				user.visible_message("[user] installs the electronics into the airlock assembly.", "You start to install electronics into the airlock assembly.")
 

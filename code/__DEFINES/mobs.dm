@@ -11,10 +11,10 @@
 #define LEAPING     0x10
 #define REBUILDING_ORGANS     0x20
 #define PASSEMOTES  0x40    // Mob has a cortical borer or holders inside of it that need to see emotes.
+#define BLEEDOUT    0x80
 #define GODMODE     0x1000
-#define FAKEDEATH   0x2000  // Replaces stuff like changeling.changeling_fakedeath.
+#define FAKEDEATH   0x2000  // Replaces stuff like carrion.carrion_fakedeath.
 #define DISFIGURED  0x4000  // Set but never checked. Remove this sometime and replace occurences with the appropriate organ code
-#define XENO_HOST   0x8000  // Tracks whether we're gonna be a baby alien's mummy.
 
 // Grab levels.
 #define GRAB_PASSIVE    1
@@ -108,6 +108,7 @@
 #define ONLY_GHOSTS_IN_VIEW 0
 
 // Defines mob sizes, used by lockers and to determine what is considered a small sized mob, etc.
+#define MOB_HUGE 		80
 #define MOB_LARGE  		40
 #define MOB_MEDIUM 		20
 #define MOB_SMALL 		10
@@ -139,6 +140,7 @@
 #define FLASH_PROTECTION_MODERATE 1
 #define FLASH_PROTECTION_MAJOR 2
 
+#define MOB_BASE_MAX_HUNGER 400
 
 //Time of Death constants
 //Used with a list in preference datums to track times of death
@@ -197,4 +199,12 @@
 #define SPECIES_HUMAN       "Human"
 
 #define RANDOM_BLOOD_TYPE pick(4;"O-", 36;"O+", 3;"A-", 28;"A+", 1;"B-", 20;"B+", 1;"AB-", 5;"AB+")
+
+#define NECROZTIME 	(5 MINUTES)
+
+
+
+//Surgery operation defines
+#define CAN_OPERATE_ALL 1 //All possible surgery types are available
+#define CAN_OPERATE_STANDING -1 //Only limited surgery types are available (gouging out shrapnel, for instance)
 

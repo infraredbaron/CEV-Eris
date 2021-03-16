@@ -4,9 +4,9 @@
 
 
 /obj/effect/dead_plant
-	anchored = 1
+	anchored = TRUE
 	opacity = 0
-	density = 0
+	density = FALSE
 	color = DEAD_PLANT_COLOUR
 
 /obj/effect/dead_plant/attack_hand()
@@ -20,14 +20,15 @@
 
 /obj/effect/plant
 	name = "plant"
-	anchored = 1
+	anchored = TRUE
 	opacity = 0
-	density = 0
+	density = FALSE
 	icon = 'icons/obj/hydroponics_growing.dmi'
 	icon_state = "bush4-1"
 	layer = 3
 	pass_flags = PASSTABLE
 	mouse_opacity = 1
+	reagent_flags = DRAINABLE
 
 	var/health = 5
 	var/max_health = 60
@@ -117,7 +118,7 @@
 
 	mature_time = world.time + seed.get_trait(TRAIT_MATURATION) + 15 //prevent vines from maturing until at least a few seconds after they've been created.
 	spread_chance = seed.get_trait(TRAIT_POTENCY)
-	spread_distance = ((growth_type>0) ? round(spread_chance*1.0) : round(spread_chance*0.5))
+	spread_distance = ((growth_type>0) ? round(spread_chance) : round(spread_chance*0.5))
 	update_icon()
 
 	if(seed.get_trait(TRAIT_CHEMS) > 0)
@@ -190,10 +191,10 @@
 		if(seed.type != /datum/seed/mushroom/maintshroom)
 			set_opacity(TRUE)
 		if(islist(seed.chems) && !isnull(seed.chems["woodpulp"]))
-			density = 1
+			density = TRUE
 	else
 		layer = (seed && seed.force_layer) ? seed.force_layer : 5
-		density = 0
+		density = FALSE
 
 
 var/list/global/cutoff_plant_icons = list()

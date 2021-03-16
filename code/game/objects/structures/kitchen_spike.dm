@@ -5,8 +5,8 @@
 	icon = 'icons/obj/kitchen.dmi'
 	icon_state = "spike"
 	desc = "A spike for collecting meat from animals."
-	density = 1
-	anchored = 1
+	density = TRUE
+	anchored = TRUE
 	var/meat = 0
 	var/occupied
 	var/meat_type
@@ -34,9 +34,6 @@
 			return 0
 		meat_type = H.species.meat_type
 		icon_state = "spikebloody"
-	else if(isalien(victim))
-		meat_type = /obj/item/weapon/reagent_containers/food/snacks/meat/xenomeat
-		icon_state = "spikebloodygreen"
 	else
 		return 0
 

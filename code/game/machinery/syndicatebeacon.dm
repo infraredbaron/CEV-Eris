@@ -12,19 +12,19 @@
 	icon = 'icons/obj/device.dmi'
 	icon_state = "syndbeacon"
 
-	anchored = 1
-	density = 1
+	anchored = TRUE
+	density = TRUE
 	layer = BELOW_MOB_LAYER //so people can't hide it and it's REALLY OBVIOUS
 
 	var/temptext = ""
 	var/selfdestructing = 0
 	var/charges = 1
 
-/obj/machinery/syndicate_beacon/attack_hand(var/mob/user as mob)
+/obj/machinery/syndicate_beacon/attack_hand(mob/user)
 	usr.set_machine(src)
 	var/dat = "<font color=#005500><i>Scanning [pick("retina pattern", "voice print", "fingerprints", "dna sequence")]...<br>Identity confirmed,<br></i></font>"
 	if(ishuman(user) || isAI(user))
-		if(is_special_character(user))
+		if(is_special_character(user) > LIMITED_ANTAG)
 			dat += "<font color=#07700><i>Operative record found. Greetings, Agent [user.name].</i></font><br>"
 		else if(charges < 1)
 			dat += "<TT>Connection severed.</TT><BR>"
@@ -83,8 +83,8 @@
 	icon = 'icons/obj/singularity.dmi'
 	icon_state = "beacon"
 
-	anchored = 0
-	density = 1
+	anchored = FALSE
+	density = TRUE
 	layer = LOW_OBJ_LAYER
 	stat = 0
 
@@ -135,7 +135,7 @@
 			return
 
 		if(anchored)
-			anchored = 0
+			anchored = FALSE
 			user << SPAN_NOTICE("You unscrew the beacon from the floor.")
 			disconnect_from_network()
 			return
@@ -143,7 +143,7 @@
 			if(!connect_to_network())
 				user << "This device must be placed over an exposed cable."
 				return
-			anchored = 1
+			anchored = TRUE
 			user << SPAN_NOTICE("You screw the beacon to the floor and attach the cable.")
 			return
 	..()

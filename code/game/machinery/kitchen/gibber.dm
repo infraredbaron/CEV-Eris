@@ -4,8 +4,8 @@
 	desc = "The name isn't descriptive enough?"
 	icon = 'icons/obj/kitchen.dmi'
 	icon_state = "grinder"
-	density = 1
-	anchored = 1
+	density = TRUE
+	anchored = TRUE
 	layer = BELOW_OBJ_LAYER
 	req_access = list(access_kitchen,access_morgue)
 
@@ -18,7 +18,7 @@
 	var/hack_require = 6 //for hacking with multitool
 	var/hack_stage = 0
 
-	use_power = 1
+	use_power = IDLE_POWER_USE
 	idle_power_usage = 2
 	active_power_usage = 500
 

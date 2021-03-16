@@ -46,7 +46,7 @@
 		.+=360
 
 //Returns location. Returns null if no location was found.
-/proc/get_teleport_loc(turf/location, mob/target, distance = 1, density = 0, errorx = 0, errory = 0, eoffsetx = 0, eoffsety = 0)
+/proc/get_teleport_loc(turf/location, mob/target, distance = 1, density = FALSE, errorx = 0, errory = 0, eoffsetx = 0, eoffsety = 0)
 /*
 Location where the teleport begins, target that will teleport, distance to go, density checking 0/1(yes/no).
 Random error in tile placement x, error in tile placement y, and block offset.
@@ -240,14 +240,14 @@ Turf and target are seperate in case you want to teleport some distance from a t
 
 //Returns whether or not a player is a guest using their ckey as an input
 /proc/IsGuestKey(key)
-	if (findtext(key, "Guest-", 1, 7) != 1) //was findtextEx
+	if(findtext(key, "Guest-", 1, 7) != 1) //was findtextEx
 		return FALSE
 
 	var/i, ch, len = length(key)
 
-	for (i = 7, i <= len, ++i) //we know the first 6 chars are Guest-
+	for(i = 7, i <= len, ++i) //we know the first 6 chars are Guest-
 		ch = text2ascii(key, i)
-		if (ch < 48 || ch > 57) //0-9
+		if(ch < 48 || ch > 57) //0-9
 			return FALSE
 	return TRUE
 
@@ -256,7 +256,7 @@ Turf and target are seperate in case you want to teleport some distance from a t
 	f = round(f)
 	f = max(low, f)
 	f = min(high, f)
-	if ((f % 2) == 0) //Ensure the last digit is an odd number
+	if((f % 2) == 0) //Ensure the last digit is an odd number
 		f += 1
 	return f
 
@@ -268,7 +268,7 @@ Turf and target are seperate in case you want to teleport some distance from a t
 
 //This will update a mob's name, real_name, mind.name, data_core records, pda and id
 //Calling this proc without an oldname will only update the mob and skip updating the pda, id and records ~Carn
-/mob/proc/fully_replace_character_name(var/oldname, var/newname)
+/mob/proc/fully_replace_character_name(oldname, newname)
 	if(!newname)	return 0
 	real_name = newname
 	name = newname
@@ -349,15 +349,15 @@ Turf and target are seperate in case you want to teleport some distance from a t
 
 //When an AI is activated, it can choose from a list of non-slaved borgs to have as a slave.
 /proc/freeborg()
-	var/select = null
+	var/select
 	var/list/borgs = list()
-	for (var/mob/living/silicon/robot/A in GLOB.player_list)
-		if (A.stat == 2 || A.connected_ai || A.scrambledcodes || isdrone(A))
+	for(var/mob/living/silicon/robot/A in GLOB.player_list)
+		if(A.stat == 2 || A.connected_ai || A.scrambledcodes || isdrone(A))
 			continue
 		var/name = "[A.real_name] ([A.modtype] [A.braintype])"
 		borgs[name] = A
 
-	if (borgs.len)
+	if(borgs.len)
 		select = input("Unshackled borg signals detected:", "Borg selection", null, null) as null|anything in borgs
 		return borgs[select]
 
@@ -426,15 +426,15 @@ Turf and target are seperate in case you want to teleport some distance from a t
 	var/list/namecounts = list()
 	for(var/mob/M in mobs)
 		var/name = M.name
-		if (name in names)
+		if(name in names)
 			namecounts[name]++
 			name = "[name] ([namecounts[name]])"
 		else
 			names.Add(name)
 			namecounts[name] = 1
-		if (M.real_name && M.real_name != M.name)
+		if(M.real_name && M.real_name != M.name)
 			name += " \[[M.real_name]\]"
-		if (M.stat == 2)
+		if(M.stat == 2)
 			if(istype(M, /mob/observer/ghost/))
 				name += " \[ghost\]"
 			else
@@ -458,8 +458,6 @@ Turf and target are seperate in case you want to teleport some distance from a t
 	for(var/mob/living/carbon/human/M in sortmob)
 		moblist.Add(M)
 	for(var/mob/living/carbon/brain/M in sortmob)
-		moblist.Add(M)
-	for(var/mob/living/carbon/alien/M in sortmob)
 		moblist.Add(M)
 	for(var/mob/observer/ghost/M in sortmob)
 		moblist.Add(M)
@@ -599,7 +597,7 @@ proc/GaussRandRound(var/sigma, var/roundto)
 		var/dir_alt2 = turn(base_dir, -90)
 		var/turf/turf_last1 = temp
 		var/turf/turf_last2 = temp
-		var/free_tile = null
+		var/free_tile
 		var/breakpoint = 0
 
 		while(!free_tile && breakpoint < 10)
@@ -659,11 +657,33 @@ proc/GaussRandRound(var/sigma, var/roundto)
 	return atoms
 
 /datum/coords //Simple datum for storing coordinates.
-	var/x_pos = null
-	var/y_pos = null
-	var/z_pos = null
+	var/x_pos
+	var/y_pos
+	var/z_pos
+	var/area_name
 
-/area/proc/move_contents_to(var/area/A, var/turftoleave=null, var/direction = null)
+/datum/coords/New(turf/loc)
+	if(loc)
+		x_pos = loc.x
+		y_pos = loc.y
+		z_pos = loc.z
+		var/area/A = get_area(loc)
+		area_name = A?.name
+
+/datum/coords/proc/get_text(display_area=TRUE)
+	var/displayed_area = display_area && area_name ? " - [strip_improper(area_name)]" : ""
+	var/displayed_x = "[x_pos]"
+	var/displayed_y = "[y_pos]"
+	var/displayed_z = "[z_pos]"
+
+	var/obj/map_data/M = GLOB.maps_data.all_levels[z_pos]
+	if(M.custom_z_names)
+		return "[displayed_x]:[displayed_y], [M.custom_z_name(z_pos)][displayed_area]"
+
+	return "[displayed_x]:[displayed_y]:[displayed_z][displayed_area]"
+
+
+/area/proc/move_contents_to(var/area/A, var/turftoleave, var/direction)
 	//Takes: Area. Optional: turf type to leave behind.
 	//Returns: Nothing.
 	//Notes: Attempts to move the contents of one area to another area.
@@ -677,13 +697,13 @@ proc/GaussRandRound(var/sigma, var/roundto)
 
 	var/src_min_x = 0
 	var/src_min_y = 0
-	for (var/turf/T in turfs_src)
+	for(var/turf/T in turfs_src)
 		if(T.x < src_min_x || !src_min_x) src_min_x	= T.x
 		if(T.y < src_min_y || !src_min_y) src_min_y	= T.y
 
 	var/trg_min_x = 0
 	var/trg_min_y = 0
-	for (var/turf/T in turfs_trg)
+	for(var/turf/T in turfs_trg)
 		if(T.x < trg_min_x || !trg_min_x) trg_min_x	= T.x
 		if(T.y < trg_min_y || !trg_min_y) trg_min_y	= T.y
 
@@ -713,9 +733,9 @@ proc/GaussRandRound(var/sigma, var/roundto)
 	var/list/toupdate = new/list()
 
 	moving:
-		for (var/turf/T in refined_src)
+		for(var/turf/T in refined_src)
 			var/datum/coords/C_src = refined_src[T]
-			for (var/turf/B in refined_trg)
+			for(var/turf/B in refined_trg)
 				var/datum/coords/C_trg = refined_trg[B]
 				if(C_src.x_pos == C_trg.x_pos && C_src.y_pos == C_trg.y_pos)
 
@@ -753,8 +773,8 @@ proc/GaussRandRound(var/sigma, var/roundto)
 						// Spawn a new shuttle corner object
 						var/obj/corner = new()
 						corner.loc = X
-						corner.density = 1
-						corner.anchored = 1
+						corner.density = TRUE
+						corner.anchored = TRUE
 						corner.icon = X.icon
 						corner.icon_state = replacetext(X.icon_state, "_s", "_f")
 						corner.tag = "delete me"
@@ -807,24 +827,45 @@ proc/GaussRandRound(var/sigma, var/roundto)
 	for(var/zone/Z in zones_trg) // rebuilding zones
 		Z.rebuild()
 
-proc/DuplicateObject(obj/original, var/perfectcopy = 0 , var/sameloc = 0)
-	if(!original)
-		return null
+//Vars that will not be copied when using /DuplicateObject //from tg
+GLOBAL_LIST_INIT(duplicate_forbidden_vars,list(
+	"tag", "datum_components", "area", "type", "loc", "locs", "vars", "parent", "parent_type", "verbs", "ckey", "key",
+	"contents", "reagents", "stat", "x", "y", "z", "comp_lookup", "bodyparts", "internal_organs", "hand_bodyparts",
+	"overlays_standing", "hud_list", "computer_id", "lastKnownIP", "WIRE_RECEIVE", "WIRE_PULSE", "WIRE_PULSE_SPECIAL",
+	"WIRE_RADIO_RECEIVE", "WIRE_RADIO_PULSE", "FREQ_LISTENING", "deffont", "signfont", "crayonfont", "hud_actions", "hidden_uplink",
+	"gc_destroyed", "is_processing", "signal_procs", "signal_enabled"))
 
-	var/obj/O = null
+/proc/DuplicateObject(atom/original, perfectcopy = TRUE, sameloc, atom/newloc)
+	RETURN_TYPE(original.type)
+	if(!original)
+		return
+
+	var/atom/O
 
 	if(sameloc)
-		O=new original.type(original.loc)
+		O = new original.type(original.loc)
 	else
-		O=new original.type(locate(0, 0, 0))
+		O = new original.type(newloc)
 
-	if(perfectcopy)
-		if((O) && (original))
-			for(var/V in original.vars)
-				if(!(V in list("type", "loc", "locs", "vars", "parent", "parent_type", "verbs", "ckey", "key")))
-					O.vars[V] = original.vars[V]
+	if(perfectcopy && O && original)
+		var/list/all_vars = duplicate_vars(original)
+		for(var/V in all_vars)
+			O.vars[V] = all_vars[V]
 	return O
 
+
+/proc/duplicate_vars(atom/original)
+	RETURN_TYPE(/list)
+	var/list/all_vars = list()
+	for(var/V in original.vars - GLOB.duplicate_forbidden_vars)
+		if(islist(original.vars[V]))
+			var/list/L = original.vars[V]
+			all_vars[V] = L.Copy()
+		else if(istype(original.vars[V], /datum) || ismob(original.vars[V]) || isHUDobj(original.vars[V]) || isobj(original.vars[V]))
+			continue	// this would reference the original's object, that will break when it is used or deleted.
+		else
+			all_vars[V] = original.vars[V]
+	return all_vars
 
 /area/proc/copy_contents_to(var/area/A , var/platingRequired = 0 )
 	//Takes: Area. Optional: If it should copy to areas that don't have plating
@@ -842,13 +883,13 @@ proc/DuplicateObject(obj/original, var/perfectcopy = 0 , var/sameloc = 0)
 
 	var/src_min_x = 0
 	var/src_min_y = 0
-	for (var/turf/T in turfs_src)
+	for(var/turf/T in turfs_src)
 		if(T.x < src_min_x || !src_min_x) src_min_x	= T.x
 		if(T.y < src_min_y || !src_min_y) src_min_y	= T.y
 
 	var/trg_min_x = 0
 	var/trg_min_y = 0
-	for (var/turf/T in turfs_trg)
+	for(var/turf/T in turfs_trg)
 		if(T.x < trg_min_x || !trg_min_x) trg_min_x	= T.x
 		if(T.y < trg_min_y || !trg_min_y) trg_min_y	= T.y
 
@@ -874,9 +915,9 @@ proc/DuplicateObject(obj/original, var/perfectcopy = 0 , var/sameloc = 0)
 
 
 	moving:
-		for (var/turf/T in refined_src)
+		for(var/turf/T in refined_src)
 			var/datum/coords/C_src = refined_src[T]
-			for (var/turf/B in refined_trg)
+			for(var/turf/B in refined_trg)
 				var/datum/coords/C_trg = refined_trg[B]
 				if(C_src.x_pos == C_trg.x_pos && C_src.y_pos == C_trg.y_pos)
 
@@ -915,7 +956,7 @@ proc/DuplicateObject(obj/original, var/perfectcopy = 0 , var/sameloc = 0)
 
 					for(var/mob/M in T)
 
-						if(!istype(M,/mob) || isEye(M)) continue // If we need to check for more mobs, I'll add a variable
+						if(!ismob(M) || isEye(M)) continue // If we need to check for more mobs, I'll add a variable
 						mobs += M
 
 					for(var/mob/M in mobs)
@@ -958,7 +999,7 @@ proc/DuplicateObject(obj/original, var/perfectcopy = 0 , var/sameloc = 0)
 /proc/get_mob_with_client_list()
 	var/list/mobs = list()
 	for(var/mob/M in SSmobs.mob_list)
-		if (M.client)
+		if(M.client)
 			mobs += M
 	return mobs
 
@@ -986,7 +1027,7 @@ proc/DuplicateObject(obj/original, var/perfectcopy = 0 , var/sameloc = 0)
 /proc/get_turf_or_move(turf/location)
 	return get_turf(location)
 
-proc/is_hot(obj/item/W as obj)
+proc/is_hot(obj/item/W)
 	if(QUALITY_WELDING in W.tool_qualities)
 		return 3800
 	switch(W.type)
@@ -1011,32 +1052,32 @@ proc/is_hot(obj/item/W as obj)
 			return 0
 
 //Whether or not the given item counts as sharp in terms of dealing damage
-/proc/is_sharp(obj/O as obj)
-	if (!O) return 0
-	if (O.sharp) return 1
-	if (O.edge) return 1
-	return 0
+/proc/is_sharp(obj/O)
+	if(!O) return FALSE
+	if(O.sharp) return TRUE
+	if(O.edge) return TRUE
+	return FALSE
 
 //Whether or not the given item counts as cutting with an edge in terms of removing limbs
-/proc/has_edge(obj/O as obj)
-	if (!O) return 0
-	if (O.edge) return 1
-	return 0
+/proc/has_edge(obj/O)
+	if(!O) return FALSE
+	if(O.edge) return TRUE
+	return FALSE
 
 //Returns 1 if the given item is capable of popping things like balloons, inflatable barriers, or cutting police tape.
-/proc/can_puncture(obj/item/W as obj)		// For the record, WHAT THE HELL IS THIS METHOD OF DOING IT?
-	if(!W) return 0
-	if(W.sharp) return 1
+/proc/can_puncture(obj/item/W)		// For the record, WHAT THE HELL IS THIS METHOD OF DOING IT?
+	if(!W) return FALSE
+	if(W.sharp) return TRUE
 	return ( \
 		W.sharp														|| \
-		istype(W, /obj/item/weapon/tool)							|| \
+		istool(W)													|| \
 		istype(W, /obj/item/weapon/pen)								|| \
 		istype(W, /obj/item/weapon/flame/lighter/zippo)				|| \
 		istype(W, /obj/item/weapon/flame/match)						|| \
 		istype(W, /obj/item/clothing/mask/smokable/cigarette)		\
 	)
 
-/proc/is_surgery_tool(obj/item/W as obj)
+/proc/is_surgery_tool(obj/item/W)
 	return (	\
 	istype(W, /obj/item/weapon/tool/scalpel)			||	\
 	istype(W, /obj/item/weapon/tool/hemostat)		||	\
@@ -1074,7 +1115,7 @@ var/list/WALLITEMS = list(
 	/obj/machinery/newscaster, /obj/machinery/firealarm, /obj/structure/noticeboard,
 	/obj/item/weapon/storage/secure/safe, /obj/machinery/door_timer, /obj/machinery/flasher, /obj/machinery/keycard_auth,
 	/obj/structure/mirror, /obj/structure/fireaxecabinet, /obj/item/modular_computer/telescreen,
-	/obj/machinery/light_construct, /obj/machinery/light, /obj/machinery/station_map
+	/obj/machinery/light_construct, /obj/machinery/light, /obj/machinery/holomap
 	)
 /proc/gotwallitem(loc, dir)
 	for(var/obj/O in loc)
@@ -1150,12 +1191,12 @@ var/list/FLOORITEMS = list(
 /proc/format_text(text)
 	return replacetext(replacetext(text, "\proper ", ""), "\improper ", "")
 
-/proc/topic_link(var/datum/D, var/arglist, var/content)
+/proc/topic_link(datum/D, arglist, content)
 	if(istype(arglist,/list))
 		arglist = list2params(arglist)
 	return "<a href='?src=\ref[D];[arglist]'>[content]</a>"
 
-/proc/get_random_colour(var/simple, var/lower, var/upper)
+/proc/get_random_colour(simple, lower, upper)
 	var/colour
 	if(simple)
 		colour = pick(list("FF0000", "FF7F00", "FFFF00", "00FF00", "0000FF", "4B0082", "8F00FF"))
@@ -1168,7 +1209,7 @@ var/list/FLOORITEMS = list(
 	return "#[colour]"
 
 //Version of view() which ignores darkness, because BYOND doesn't have it.
-/proc/dview(var/range = world.view, var/center, var/invis_flags = 0)
+/proc/dview(range = world.view, center, invis_flags = 0)
 	if(!center)
 		return
 
@@ -1181,10 +1222,10 @@ var/list/FLOORITEMS = list(
 
 /mob/dview
 	invisibility = 101
-	density = 0
+	density = FALSE
 
-	anchored = 1
-	simulated = 0
+	anchored = TRUE
+	simulated = FALSE
 
 	see_in_dark = 1e6
 
@@ -1192,21 +1233,21 @@ var/list/FLOORITEMS = list(
 	crash_with("Prevented attempt to delete dview mob: [log_info_line(src)]")
 	return QDEL_HINT_LETMELIVE // Prevents destruction
 
-/atom/proc/get_light_and_color(var/atom/origin)
+/atom/proc/get_light_and_color(atom/origin)
 	if(origin)
 		color = origin.color
 		set_light(origin.light_range, origin.light_power, origin.light_color)
 
 /mob/dview/Initialize() // Properly prevents this mob from gaining huds or joining any global lists
-	return
+	return INITIALIZE_HINT_NORMAL
 
 // call to generate a stack trace and print to runtime logs
 /proc/crash_with(msg)
 	CRASH(msg)
 
-/proc/CheckFace(var/atom/Obj1, var/atom/Obj2)
+/proc/CheckFace(atom/Obj1, atom/Obj2)
 	var/CurrentDir = get_dir(Obj1, Obj2)
-	//if ((Obj1.loc == Obj2.loc) || (CurrentDir == Obj1.dir) || (CurrentDir == turn(Obj1.dir, 45)) || (CurrentDir == turn(Obj1.dir, -45)))
+	//if((Obj1.loc == Obj2.loc) || (CurrentDir == Obj1.dir) || (CurrentDir == turn(Obj1.dir, 45)) || (CurrentDir == turn(Obj1.dir, -45)))
 	if((CurrentDir & Obj1.dir) || (CurrentDir == 0))
 		return 1
 	else

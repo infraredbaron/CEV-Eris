@@ -8,9 +8,10 @@
 	throw_speed = 3
 	throw_range = 7
 	w_class = ITEM_SIZE_NORMAL
-	sharp = 0
-	edge = 0
-
+	sharp = FALSE
+	edge = FALSE
+	bad_type = /obj/item/weapon/material
+	spawn_tags = SPAWN_TAG_WEAPON
 	var/applies_material_colour = 1
 	var/unbreakable
 	var/force_divisor = 1

@@ -3,7 +3,7 @@
 	desc = "Love and concrete."
 
 	faction = "onestar"
-
+	mob_size = MOB_HUGE
 	icon = 'icons/mob/64x64.dmi'
 	icon_state = "onestar_boss_unpowered"
 	icon_living = "onestar_boss_unpowered"
@@ -20,6 +20,8 @@
 	melee_damage_upper = 20
 	megafauna_min_cooldown = 30
 	megafauna_max_cooldown = 60
+
+	mob_classification = CLASSIFICATION_SYNTHETIC
 
 	wander = FALSE //No more sleepwalking
 

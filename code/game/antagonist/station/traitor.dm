@@ -26,7 +26,7 @@
 		return
 	if(href_list["spawn_uplink"]) spawn_uplink(locate(href_list["spawn_uplink"]))
 
-/datum/antagonist/traitor/can_become_antag(var/datum/mind/player)
+/datum/antagonist/traitor/can_become_antag(datum/mind/player)
 	return ishuman(player.current) && ..(player)
 
 /datum/antagonist/traitor/equip()
@@ -42,6 +42,7 @@
 		return FALSE
 
 	spawn_uplink(owner.current)
+
 	give_codewords()
 
 	return TRUE
@@ -74,7 +75,7 @@
 
 	survive_objective = /datum/objective/survive
 
-/datum/antagonist/traitor/synth/can_become_antag(var/datum/mind/player)
+/datum/antagonist/traitor/synth/can_become_antag(datum/mind/player)
 	return issilicon(player.current) && ..(player)
 
 /datum/antagonist/traitor/synth/equip()

@@ -1,13 +1,12 @@
 // Glass shards
-
 /obj/item/weapon/material/shard
 	name = "shard"
 	icon = 'icons/obj/shards.dmi'
 	desc = "Made of nothing. How does this even exist?" // set based on material, if this desc is visible it's a bug (shards default to being made of glass)
 	icon_state = "large"
-	sharp = 1
-	edge = 1
-	w_class = ITEM_SIZE_SMALL
+	sharp = TRUE
+	edge = TRUE
+	w_class = ITEM_SIZE_TINY
 	force_divisor = 0.2 // 6 with hardness 30 (glass)
 	thrown_force_divisor = 0.4 // 4 with weight 15 (glass)
 	item_state = "shard-glass"
@@ -15,14 +14,16 @@
 	default_material = MATERIAL_GLASS
 	unbreakable = 1 //It's already broken.
 	drops_debris = 0
+	spawn_tags = SPAWN_TAG_MATERIAL_BUILDING_JUNK
+	rarity_value = 6
 	var/amount = 0
 
-/obj/item/weapon/material/shard/New(var/newloc, var/material_key, var/_amount)
-	if (_amount)
+/obj/item/weapon/material/shard/New(newloc, material_key, _amount)
+	if(_amount)
 		amount = max(round(_amount, 0.01), 0.01) //We won't ever need to physically represent less than 1% of a material unit
 	.=..()
 	//Material will be set during the parent callstack
-	if (!material)
+	if(!material)
 		qdel(src)
 		return
 
@@ -176,6 +177,7 @@
 // Preset types - left here for the code that uses them
 /obj/item/weapon/material/shard/shrapnel
 	name = "shrapnel" //Needed for crafting
+	rarity_value = 2.5
 
 /obj/item/weapon/material/shard/shrapnel/New(loc)
 
@@ -184,6 +186,7 @@
 /obj/item/weapon/material/shard/shrapnel/scrap
 	name = "scrap metal"
 	amount = 1
+	rarity_value = 5
 
 /obj/item/weapon/material/shard/plasma/New(loc)
 	..(loc, MATERIAL_PLASMAGLASS)

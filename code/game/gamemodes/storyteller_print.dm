@@ -1,9 +1,9 @@
 /datum/storyteller/proc/declare_completion()
 	var/text = ""
-	if(current_antags.len)
+	if(GLOB.current_antags.len)
 		var/list/antags_by_ids = list()
 		text += "<br><font size=3><b>Round antagonists were:</b></font>"
-		for(var/datum/antagonist/A in current_antags)
+		for(var/datum/antagonist/A in GLOB.current_antags)
 			if(!A.faction)
 				if(!islist(antags_by_ids[A.id]))
 					antags_by_ids[A.id] = list()
@@ -21,9 +21,9 @@
 				text += "<br><b>The [fA.role_text]:</b>"
 				text += fA.print_success()
 
-	if(current_factions.len)
+	if(GLOB.current_factions.len)
 		text += "<br><font size=3><b>Round factions were:</b></font>"
-		for(var/datum/faction/F in current_factions)
+		for(var/datum/faction/F in GLOB.current_factions)
 			text += F.print_success()
 
 
@@ -108,8 +108,8 @@
 
 	data += "<hr><b>Current antags:</b><div style=\"border:1px solid black;\"><ul>"
 
-	if (current_antags.len)
-		for(var/datum/antagonist/A in current_antags)
+	if (GLOB.current_antags.len)
+		for(var/datum/antagonist/A in GLOB.current_antags)
 			var/act = "<font color=red>DEAD</font>"
 			if(!A.is_dead())
 				if(!A.is_active())
@@ -216,9 +216,12 @@
 
 	if(href_list["delay_round_end"])
 		if(!check_rights(R_SERVER))
+			return
+		if (SSticker.current_state != GAME_STATE_PREGAME && SSticker.current_state != GAME_STATE_STARTUP)
 			SSticker.delay_end = !SSticker.delay_end
 			log_admin("[key_name(usr)] [SSticker.delay_end ? "delayed the round end" : "has made the round end normally"].")
 			message_admins("\blue [key_name(usr)] [SSticker.delay_end ? "delayed the round end" : "has made the round end normally"].", 1)
+			return
 
 	topic_extra(href,href_list)
 

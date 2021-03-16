@@ -6,7 +6,7 @@
 	icon_state_menu = "menu"
 	hardware_flag = PROGRAM_CONSOLE
 	anchored = TRUE
-	density = 1
+	density = TRUE
 	w_class = ITEM_SIZE_GARGANTUAN
 	base_idle_power_usage = 100
 	base_active_power_usage = 500
@@ -16,8 +16,9 @@
 	screen_light_range = 2.1
 	max_damage = 300
 	broken_damage = 150
+	spawn_tags = SPAWN_TAG_MACHINERY
 
-/obj/item/modular_computer/console/CouldUseTopic(var/mob/user)
+/obj/item/modular_computer/console/CouldUseTopic(mob/user)
 	..()
 	if(istype(user, /mob/living/carbon))
 		if(prob(50))

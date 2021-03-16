@@ -2,13 +2,13 @@
 /obj/machinery/radiocarbon_spectrometer
 	name = "radiocarbon spectrometer"
 	desc = "A specialised, complex scanner for gleaning information on all manner of small things."
-	anchored = 1
-	density = 1
+	anchored = TRUE
+	density = TRUE
 	reagent_flags = OPENCONTAINER
 	icon = 'icons/obj/virology.dmi'
 	icon_state = "analyser"
 
-	use_power = 1			//1 = idle, 2 = active
+	use_power = IDLE_POWER_USE			//1 = idle, 2 = active
 	idle_power_usage = 20
 	active_power_usage = 300
 

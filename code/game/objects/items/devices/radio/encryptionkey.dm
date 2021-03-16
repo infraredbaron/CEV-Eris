@@ -1,5 +1,5 @@
 
-/obj/item/device/encryptionkey/
+/obj/item/device/encryptionkey
 	name = "standard encryption key"
 	desc = "An encryption key for a radio headset. Contains cypherkeys."
 	icon = 'icons/obj/radio.dmi'
@@ -7,24 +7,25 @@
 	item_state = ""
 	w_class = ITEM_SIZE_TINY
 	slot_flags = SLOT_EARS
+	spawn_blacklisted = TRUE
+	matter = list(MATERIAL_STEEL = 0.5, MATERIAL_SILVER = 0.5)
 	var/translate_binary = 0
 	var/translate_hive = 0
 	var/syndie = 0
 	var/list/channels = list()
-	matter = list(MATERIAL_STEEL = 0.5, MATERIAL_SILVER = 0.5)
 
-/obj/item/device/encryptionkey/attackby(obj/item/weapon/W as obj, mob/user as mob)
+/obj/item/device/encryptionkey/attackby(obj/item/weapon/W, mob/user)
 
 /obj/item/device/encryptionkey/syndicate
 	icon_state = "cypherkey"
 	channels = list("Mercenary" = 1)
-	origin_tech = list(TECH_ILLEGAL = 3)
+	origin_tech = list(TECH_COVERT = 3)
 	syndie = 1//Signifies that it de-crypts Syndicate transmissions
 
 /obj/item/device/encryptionkey/binary
 	icon_state = "cypherkey"
 	translate_binary = 1
-	origin_tech = list(TECH_ILLEGAL = 3)
+	origin_tech = list(TECH_COVERT = 3)
 
 /obj/item/device/encryptionkey/headset_sec
 	name = "ironhammer radio encryption key"
@@ -130,3 +131,10 @@
 /obj/item/device/encryptionkey/entertainment
 	name = "entertainment radio key"
 	channels = list("Entertainment" = 1)
+
+//addition to /obj/item/weapon/card/id/all_access
+/obj/item/device/encryptionkey/heads/admin
+	name = "Admin encryption key"
+	desc = "Full powers encryption key"
+	icon_state = "cap_cypherkey"
+	channels = list("Command" = 1, "Security" = 1, "Engineering" = 1, "NT Voice" = 1, "Science" = 1, "Medical" = 1, "Supply" = 1, "Service" = 1, "AI Private" = 1, "Mercenary" = 1)

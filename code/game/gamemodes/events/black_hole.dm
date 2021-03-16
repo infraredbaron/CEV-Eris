@@ -10,8 +10,8 @@
 	icon_state = "bhole3"
 	opacity = 1
 	unacidable = 1
-	density = 0
-	anchored = 1
+	density = FALSE
+	anchored = TRUE
 
 /obj/effect/bhole/New()
 	spawn(4)
@@ -30,7 +30,7 @@
 		for(var/obj/O in orange(1,src))
 			qdel(O)
 		var/base_turf = get_base_turf_by_area(src)
-		for(var/turf/simulated/ST in trange(1,src))
+		for(var/turf/simulated/ST in RANGE_TURFS(1,src))
 			if(ST.type == base_turf)
 				continue
 			ST.ChangeTurf(base_turf)
@@ -59,9 +59,9 @@
 
 		//MOVEMENT
 		if( prob(50) )
-			src.anchored = 0
+			src.anchored = FALSE
 			step(src,pick(alldirs))
-			src.anchored = 1
+			src.anchored = TRUE
 
 /obj/effect/bhole/proc/grav(var/r, var/ex_act_force, var/pull_chance, var/turf_removal_chance)
 	if(!isturf(loc))	//blackhole cannot be contained inside anything. Weird stuff might happen

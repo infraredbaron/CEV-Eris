@@ -6,9 +6,9 @@
 	desc = "A solar electrical generator."
 	icon = 'icons/obj/power.dmi'
 	icon_state = "sp_base"
-	anchored = 1
-	density = 1
-	use_power = 0
+	anchored = TRUE
+	density = TRUE
+	use_power = NO_POWER_USE
 	idle_power_usage = 0
 	active_power_usage = 0
 	var/id = 0
@@ -49,7 +49,7 @@
 	if(!S)
 		S = new /obj/item/solar_assembly(src)
 		S.glass_type = /obj/item/stack/material/glass
-		S.anchored = 1
+		S.anchored = TRUE
 	S.loc = src
 	if(S.glass_type == /obj/item/stack/material/glass/reinforced) //if the panel is in reinforced glass
 		health *= 2 								 //this need to be placed here, because panels already on the map don't have an assembly linked to
@@ -138,13 +138,13 @@
 
 /obj/machinery/power/solar/ex_act(severity)
 	switch(severity)
-		if(1.0)
+		if(1)
 			if(prob(15))
 				new /obj/item/weapon/material/shard( src.loc )
 			qdel(src)
 			return
 
-		if(2.0)
+		if(2)
 			if (prob(25))
 				new /obj/item/weapon/material/shard( src.loc )
 				qdel(src)
@@ -153,7 +153,7 @@
 			if (prob(50))
 				broken()
 
-		if(3.0)
+		if(3)
 			if (prob(25))
 				broken()
 	return
@@ -201,7 +201,7 @@
 	icon_state = "sp_base"
 	item_state = "electropack"
 	w_class = ITEM_SIZE_BULKY // Pretty big!
-	anchored = 0
+	anchored = FALSE
 	var/tracker = 0
 	var/glass_type = null
 
@@ -228,7 +228,7 @@
 		if(QUALITY_PRYING)
 			if(tracker)
 				if(I.use_tool(user, src, WORKTIME_NORMAL, tool_type, FAILCHANCE_NORMAL, required_stat = STAT_MEC))
-					new /obj/item/weapon/tracker_electronics(src.loc)
+					new /obj/item/weapon/electronics/tracker(src.loc)
 					tracker = 0
 					user.visible_message(SPAN_NOTICE("[user] takes out the electronics from the solar assembly."))
 					return
@@ -245,7 +245,7 @@
 			return
 
 	if(anchored && !isturf(loc))
-		if(istype(I, /obj/item/stack/material) && (I.get_material_name() == "glass" || I.get_material_name() == "rglass"))
+		if(istype(I, /obj/item/stack/material) && (I.get_material_name() == MATERIAL_GLASS || I.get_material_name() == MATERIAL_RGLASS))
 			var/obj/item/stack/material/S = I
 			if(S.use(2))
 				glass_type = I.type
@@ -261,7 +261,7 @@
 			return
 
 	if(!tracker)
-		if(istype(I, /obj/item/weapon/tracker_electronics))
+		if(istype(I, /obj/item/weapon/electronics/tracker))
 			tracker = 1
 			user.drop_item()
 			qdel(I)
@@ -278,9 +278,9 @@
 	desc = "A controller for solar panel arrays."
 	icon = 'icons/obj/computer.dmi'
 	icon_state = "solar"
-	anchored = 1
-	density = 1
-	use_power = 1
+	anchored = TRUE
+	density = TRUE
+	use_power = IDLE_POWER_USE
 	idle_power_usage = 250
 	var/light_range_on = 1.5
 	var/light_power_on = 3
@@ -409,24 +409,24 @@
 				to_chat(user, SPAN_NOTICE("The broken glass falls out."))
 				var/obj/structure/computerframe/A = new /obj/structure/computerframe( src.loc )
 				new /obj/item/weapon/material/shard( src.loc )
-				var/obj/item/weapon/circuitboard/solar_control/M = new /obj/item/weapon/circuitboard/solar_control( A )
+				var/obj/item/weapon/electronics/circuitboard/solar_control/M = new /obj/item/weapon/electronics/circuitboard/solar_control( A )
 				for (var/obj/C in src)
 					C.loc = src.loc
 				A.circuit = M
 				A.state = 3
 				A.icon_state = "3"
-				A.anchored = 1
+				A.anchored = TRUE
 				qdel(src)
 			else
 				to_chat(user, SPAN_NOTICE("You disconnect the monitor."))
 				var/obj/structure/computerframe/A = new /obj/structure/computerframe( src.loc )
-				var/obj/item/weapon/circuitboard/solar_control/M = new /obj/item/weapon/circuitboard/solar_control( A )
+				var/obj/item/weapon/electronics/circuitboard/solar_control/M = new /obj/item/weapon/electronics/circuitboard/solar_control( A )
 				for (var/obj/C in src)
 					C.loc = src.loc
 				A.circuit = M
 				A.state = 4
 				A.icon_state = "4"
-				A.anchored = 1
+				A.anchored = TRUE
 				qdel(src)
 	else
 		src.attack_hand(user)
@@ -515,14 +515,14 @@
 
 /obj/machinery/power/solar_control/ex_act(severity)
 	switch(severity)
-		if(1.0)
+		if(1)
 			//SN src = null
 			qdel(src)
 			return
-		if(2.0)
+		if(2)
 			if (prob(50))
 				broken()
-		if(3.0)
+		if(3)
 			if (prob(25))
 				broken()
 	return

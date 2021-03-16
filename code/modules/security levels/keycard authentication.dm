@@ -3,7 +3,7 @@
 	desc = "This device is used to trigger station functions, which require more than one ID card to authenticate."
 	icon = 'icons/obj/monitors.dmi'
 	icon_state = "auth_off"
-	use_power = 0
+	use_power = NO_POWER_USE
 	idle_power_usage = 0
 	active_power_usage = 0
 	interact_offline = TRUE
@@ -35,7 +35,7 @@
 
 /obj/machinery/keycard_auth/ui_interact(mob/user, ui_key = "main", var/datum/nanoui/ui = null, var/force_open = NANOUI_FOCUS)
 	var/data[0]
-	var/decl/security_state/security_state = decls_repository.get_decl(maps_data.security_state)
+	var/decl/security_state/security_state = decls_repository.get_decl(GLOB.maps_data.security_state)
 
 	data["seclevel"] = security_state.current_security_level.name
 	data["emergencymaint"] = maint_all_access
@@ -98,7 +98,7 @@
 /obj/machinery/keycard_auth/proc/countdown_finished(event)
 	switch(event)
 		if("redalert")
-			var/decl/security_state/security_state = decls_repository.get_decl(maps_data.security_state)
+			var/decl/security_state/security_state = decls_repository.get_decl(GLOB.maps_data.security_state)
 			security_state.set_security_level(security_state.high_security_level)
 		if("pods")
 			evacuation_controller.call_evacuation(null, TRUE)

@@ -21,6 +21,11 @@
 	// for the sake of cleanliness, though, here they are.
 	status_flags = CANPARALYSE|CANPUSH
 
+	//spawn_values
+	rarity_value = 10
+	spawn_frequency = 10
+	spawn_tags = SPAWN_TAG_SLIME
+
 	var/cores = 1 // the number of /obj/item/slime_extract's the slime has left inside
 	var/mutation_chance = 30 // Chance of mutating, should be between 25 and 35
 
@@ -187,17 +192,17 @@
 	var/b_loss = null
 	var/f_loss = null
 	switch (severity)
-		if (1.0)
+		if (1)
 			qdel(src)
 			return
 
-		if (2.0)
+		if (2)
 
 			b_loss += 60
 			f_loss += 60
 
 
-		if(3.0)
+		if(3)
 			b_loss += 30
 
 	adjustBruteLoss(b_loss)
@@ -234,7 +239,7 @@
 					SStun = 0
 
 				Victim = null
-				anchored = 0
+				anchored = FALSE
 				step_away(src,M)
 
 			return
@@ -260,7 +265,7 @@
 					SStun = 0
 
 				Victim = null
-				anchored = 0
+				anchored = FALSE
 				step_away(src,M)
 
 			return
@@ -295,7 +300,7 @@
 					if(Victim || Target)
 						Victim = null
 						Target = null
-						anchored = 0
+						anchored = FALSE
 						if(prob(80) && !client)
 							Discipline++
 					spawn(0)
@@ -331,7 +336,7 @@
 
 					Victim = null
 					Target = null
-					anchored = 0
+					anchored = FALSE
 
 					SStun = 1
 					spawn(rand(5,20))
@@ -360,7 +365,7 @@
 
 					Victim = null
 					Target = null
-					anchored = 0
+					anchored = FALSE
 
 					spawn(0)
 						if(user)
@@ -376,14 +381,14 @@
 /mob/living/carbon/slime/restrained()
 	return 0
 
-/mob/living/carbon/slime/var/co2overloadtime = null
+/mob/living/carbon/slime/var/co2overloadtime
 /mob/living/carbon/slime/var/temperature_resistance = T0C+75
 
 mob/living/carbon/slime/toggle_throw_mode()
 	return
 
-/mob/living/carbon/slime/proc/gain_nutrition(var/amount)
-	nutrition += amount
+/mob/living/carbon/slime/proc/gain_nutrition(amount)
+	adjustNutrition(amount)
 	if(prob(amount * 2)) // Gain around one level per 50 nutrition
 		powerlevel++
 		if(powerlevel > 10)
